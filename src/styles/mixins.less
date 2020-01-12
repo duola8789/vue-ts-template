@@ -1,0 +1,67 @@
+/**
+ * 可复用样式类, 无须手动导入，在 LESS 文件中可直接使用
+ */
+// 单行文字剪切
+.text-overflow() {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+// 多行文字剪切
+.text-overflow-multiple(@line) {
+  display: -webkit-box;
+  -webkit-line-clamp: @line;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// 环状图无数据占位元素
+.empty-loop-placeholder(@width: 240px) {
+  @borderRadius: round(@width/8);
+  @gapWidth: round(@width/50);
+
+  position: relative;
+  width: @width;
+  height: @width;
+  margin: 0 auto;
+  border-radius: 100%;
+  border: @borderRadius solid #eee;
+
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: -@borderRadius;
+    width: @gapWidth;
+    height: @borderRadius;
+    transform: translateX(-50%);
+    background: #fff;
+  }
+}
+
+// 环状图无数据占位元素
+.empty-pie-placeholder(@width: 240px) {
+  @gapWidth: round(@width/50);
+
+  position: relative;
+  width: @width;
+  height: @width;
+  margin: 0 auto;
+  border-radius: 100%;
+  background: #eee;
+
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: @gapWidth;
+    height: 50%;
+    transform: translateX(-50%);
+    border-radius: 0 0 floor(@gapWidth/2) floor(@gapWidth/2);
+    background: #fff;
+  }
+}
