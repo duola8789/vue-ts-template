@@ -18,6 +18,7 @@ Vue + TypeScript 项目模板，源自使用[Vue-Cli@4](https://cli.vuejs.org/zh
 10. 封装好的导航组件（[el-menu](https://element.eleme.cn/#/zh-CN/component/menu)）
 10. 单元测试（Vue-Cli@4 + Jest）
 11. `/src/utils`中其他一些预置的辅助方法（[date-fns](https://date-fns.org/) + [js-cookie](https://github.com/js-cookie/js-cookie)）
+12. 针对百度内部的持续集成脚本
 
 ## 脚本
 
@@ -25,7 +26,7 @@ Vue + TypeScript 项目模板，源自使用[Vue-Cli@4](https://cli.vuejs.org/zh
 # 安装依赖
 yarn install
 
-# 开发
+# 开发 8000 端口
 yarn serve
 
 # 编译（生产环境）
@@ -39,4 +40,7 @@ yarn build-staging
 
 # 本地 7000 端口预览编译后文件
 preview
+
+# 格式化 src 目录下文件
+yarn prettier
 ```
