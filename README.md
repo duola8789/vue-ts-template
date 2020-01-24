@@ -1,5 +1,13 @@
 # Vue + TypeScript Project
 
+项目初始化后，需要自行配置：
+
+- `index.html` 中对应的文档标题
+- `.yarnrc` 中 Yarn 的仓库地址
+- `bin` 目录中对应的部署脚本
+- `vue.config.js` 中对应的端口号
+- 此 README.md 文档
+
 ## 项目介绍
 
 Vue + TypeScript 项目模板，源自使用[Vue-Cli@4](https://cli.vuejs.org/zh/)创建的使用了TypeScript语言的Vue项目。
