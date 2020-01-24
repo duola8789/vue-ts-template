@@ -1,5 +1,5 @@
-import { MutationTree, GetterTree, ActionTree } from 'vuex';
-import { RootState } from '@/store/root-store/interface-types';
+import {MutationTree, GetterTree, ActionTree} from 'vuex';
+import {RootState} from '@/store/root-store/interface-types';
 
 export interface ExampleState {}
 
