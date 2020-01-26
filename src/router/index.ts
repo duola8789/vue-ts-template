@@ -3,23 +3,24 @@ import VueRouter, {RouteConfig} from 'vue-router';
 import exampleRoutes from '@/router/modules/example.ts';
 import {lazyLoadHelper} from '@/utils';
 import {beforeEachCallback, beforeResolveCallback, afterEachCallback} from '@/router/router-guards/index';
+import {CommonUrls} from './types';
 
 Vue.use(VueRouter);
 
 const routes: RouteConfig[] = [
     {
-        path: '/login',
+        path: CommonUrls.Login,
         name: 'login',
         component: lazyLoadHelper('common/login/index')
     },
     {
-        path: '/',
+        path: CommonUrls.Root,
         name: 'layout',
         component: lazyLoadHelper('common/layout'),
         children: [
             ...exampleRoutes,
             {
-                path: '/403',
+                path: CommonUrls.Forbidden,
                 name: 'Forbidden',
                 component: lazyLoadHelper('common/403')
             },

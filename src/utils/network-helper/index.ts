@@ -12,7 +12,7 @@ import {
 } from '@/utils/network-helper/types';
 import {loadingCounter} from '@/utils/network-helper/loading-counter';
 import store from '@/store/index';
-import {ROOT_UPDATE_AUTHORIZED_MUTATION, ROOT_LOGOUT_MUTATION} from '@/store/root-store/store-types';
+import {ROOT_UPDATE_USER_ROLE_MUTATION, ROOT_LOGOUT_MUTATION} from '@/store/root-store/store-types';
 
 // HTTP CODE 对照码
 // MSDN: https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status
@@ -89,7 +89,7 @@ const commonErrorHandler: InterceptorResponseHandler = {
         }
         // 接口返回 403，无权限
         if (+response.status === 403) {
-            store.commit(ROOT_UPDATE_AUTHORIZED_MUTATION, false);
+            store.commit(ROOT_UPDATE_USER_ROLE_MUTATION, false);
         }
         return Promise.reject(response);
     }

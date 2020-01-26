@@ -12,19 +12,21 @@ import {
 } from '@/store/root-store/interface-types';
 import {
     ROOT_UPDATE_USER_INFO_MUTATION,
-    ROOT_UPDATE_AUTHORIZED_MUTATION,
+    ROOT_UPDATE_USER_ROLE_MUTATION,
     ROOT_LOGIN_URL,
     ROOT_LOGIN_ACTION,
     ROOT_LOGOUT_URL,
     ROOT_LOGOUT_MUTATION,
-    ROOT_LOGOUT_ACTION
+    ROOT_LOGOUT_ACTION,
+    ROOT_GET_USER_ROLE_ACTION,
+    ROOT_GET_USER_ROLE_URL
 } from '@/store/root-store/store-types';
 import {request, getLocalStorageHelper, setLocalStorageHelper, removeLocalStorageHelper} from '@/utils';
 
 const state: RootState = {
     token: getLocalStorageHelper('token'),
     userInfo: getLocalStorageHelper('userInfo'),
-    isAuthorized: true
+    userRole: ''
 };
 
 const getters: RootGetters = {
@@ -38,6 +40,9 @@ const getters: RootGetters = {
     },
     userId(state) {
         return state.userInfo ? state.userInfo.userId : '';
+    },
+    isAuthorized(state) {
+        return !!state.userInfo;
     }
 };
 
@@ -48,14 +53,14 @@ const mutations: RootMutations = {
         state.userInfo = userInfo;
     },
     // 更新权限信息
-    [ROOT_UPDATE_AUTHORIZED_MUTATION](state, isAuthorized) {
-        state.isAuthorized = isAuthorized;
+    [ROOT_UPDATE_USER_ROLE_MUTATION](state, role) {
+        state.userRole = role;
     },
     // 退出登录
     [ROOT_LOGOUT_MUTATION](state) {
         state.token = '';
         state.userInfo = null;
-        state.isAuthorized = false;
+        state.userRole = '';
     }
 };
 
@@ -64,12 +69,19 @@ const actions: RootActions = {
     async [ROOT_LOGIN_ACTION]({commit}) {
         const {code, data} = await request.post<RootLoginResponse>(ROOT_LOGIN_URL);
         if (code === 0 && data) {
-            const {token = '', username = '', userId = '', isAuthorized = false} = data;
+            const {token = '', username = '', userId = ''} = data;
             const userInfo = {username, userId};
             commit(ROOT_UPDATE_USER_INFO_MUTATION, {token, userInfo});
-            commit(ROOT_UPDATE_AUTHORIZED_MUTATION, isAuthorized);
             setLocalStorageHelper('token', token);
             setLocalStorageHelper('userInfo', userInfo);
+        }
+        return code === 0;
+    },
+    // 获取用户权限
+    async [ROOT_GET_USER_ROLE_ACTION]({commit}, userId) {
+        const {code, data} = await request.post<{role: string}>(ROOT_GET_USER_ROLE_URL, {userId});
+        if (code === 0 && data) {
+            commit(ROOT_UPDATE_USER_ROLE_MUTATION, data.role);
         }
         return code === 0;
     },

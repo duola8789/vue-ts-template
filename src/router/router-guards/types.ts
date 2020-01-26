@@ -7,13 +7,13 @@
 // Login 对应 next('/login')
 // Root 对应 next('/')
 enum NextSteps {
-    Next = 'next',
-    Stay = 'false',
-    Login = 'login'
+    Next,
+    Stay,
+    Login
 }
 
 interface GetLoginCheckNextStep {
-    (toPath: string, fromPath?: string): NextSteps.Next | NextSteps.Stay | NextSteps.Login;
+    (toPath: string): NextSteps.Next | NextSteps.Stay | NextSteps.Login;
 }
 
 export {NextSteps, GetLoginCheckNextStep};

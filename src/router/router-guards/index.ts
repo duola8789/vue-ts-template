@@ -4,12 +4,13 @@
 import {NavigationGuard} from 'vue-router';
 import {NextSteps, GetLoginCheckNextStep} from './types';
 import store from '@/store/index';
+import {CommonUrls} from '@/router/types';
 
 // 验证登陆状态
 const getLoginCheckNextStep: GetLoginCheckNextStep = (toPath) => {
     const isLogin = store.getters.isLogin();
-    switch (toPath) {
-        case '/login': {
+    switch (toPath.toLowerCase()) {
+        case CommonUrls.Login: {
             return isLogin ? NextSteps.Stay : NextSteps.Next;
         }
         default: {
@@ -22,7 +23,7 @@ const getLoginCheckNextStep: GetLoginCheckNextStep = (toPath) => {
 const beforeEachCallback: NavigationGuard = (to, from, next) => {
     const loginNextStep = getLoginCheckNextStep(to.path);
     if (loginNextStep === NextSteps.Login) {
-        next('/login');
+        next(CommonUrls.Login);
         return;
     }
     if (loginNextStep === NextSteps.Stay) {

@@ -8,7 +8,7 @@
                 circle
                 @click="collapseMenu"
             />
-            <h1 class="title">{{ username }} -- {{ userId }} -- {{ isAuthorized }}</h1>
+            <h1 class="title">{{ username }} -- {{ userId }} -- {{ userRole }}</h1>
             <el-button icon="el-icon-user" class="logout-button" circle @click="logoutHandler" />
         </el-header>
         <el-container>
@@ -26,8 +26,8 @@
 import {Component, Vue, Watch} from 'vue-property-decorator';
 import {State, Getter, Action} from 'vuex-class';
 import Menu from '@/views/common/menu/index.vue';
-import {ROOT_LOGOUT_ACTION} from '@/store/root-store/store-types';
-import {NextSteps} from '@/router/router-guards/types';
+import {ROOT_GET_USER_ROLE_ACTION, ROOT_LOGOUT_ACTION} from '@/store/root-store/store-types';
+import {CommonUrls} from '@/router/types';
 
 @Component({components: {Menu}})
 export default class App extends Vue {
@@ -40,15 +40,18 @@ export default class App extends Vue {
         return this.isCollapse ? 'el-icon-s-fold' : 'el-icon-s-unfold';
     }
 
-    @State isAuthorized!: boolean;
+    @State userRole!: string;
+
+    @Getter isAuthorized!: boolean;
     @Getter username!: string;
     @Getter userId!: string;
 
     @Action(ROOT_LOGOUT_ACTION) logout!: () => Promise<boolean>;
+    @Action(ROOT_GET_USER_ROLE_ACTION) getUserRole!: (userId: string) => Promise<string>;
 
     @Watch('$route.path')
-    onRoutePathChanged() {
-        this.goToDefaultRoutePath();
+    onRoutePathChanged(newPath: string) {
+        this.checkUserRole(newPath);
     }
 
     collapseMenu() {
@@ -63,25 +66,24 @@ export default class App extends Vue {
                 message: '已退出',
                 duration: 1000,
                 onClose: () => {
-                    this.$router.push(NextSteps.Login).catch(() => {});
+                    this.$router.push(CommonUrls.Login).catch(() => {});
                 }
             });
         }
     }
 
-    goToDefaultRoutePath(): void {
-        const DEFAULT_PATH = '/example/hello-vue';
-        const UNAUTHORIZED_PATH = '/403';
-
-        if (this.isAuthorized) {
-            this.$router.replace(DEFAULT_PATH).catch(() => {});
-        } else {
-            this.$router.replace(UNAUTHORIZED_PATH).catch(() => {});
+    checkUserRole(currentPath: string): void {
+        if (!this.isAuthorized) {
+            this.$router.replace(CommonUrls.Forbidden).catch(() => {});
+        }
+        if (currentPath.toLowerCase() === CommonUrls.Root) {
+            this.$router.replace(CommonUrls.Default).catch(() => {});
         }
     }
 
     async created() {
-        await this.goToDefaultRoutePath();
+        await this.getUserRole(this.userId);
+        await this.checkUserRole(this.$route.path);
     }
 }
 </script>
