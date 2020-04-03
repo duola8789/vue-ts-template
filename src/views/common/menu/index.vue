@@ -1,44 +1,38 @@
 <template>
     <el-menu
-        class="menu"
+        class="common-menu"
         :router="true"
         :collapse="isCollapse"
         :collapse-transition="false"
         :default-active="$route.path"
         :unique-opened="true"
     >
-        <el-submenu v-for="submenu in menus" :key="submenu.path" :index="submenu.path">
-            <!-- submenu -->
-            <template slot="title">
-                <i :class="submenu.icon || defaultIcon" />
-                <span slot="title">{{ submenu.title }}</span>
-            </template>
-            <!-- 有 group -->
-            <template v-if="submenu.groups && submenu.groups.length > 0">
-                <el-menu-item-group v-for="group in submenu.groups" :key="group.title">
-                    <!-- group -->
+        <template v-for="menu in menus">
+            <!-- 有子菜单 -->
+            <template v-if="menu.children && menu.children.length > 0">
+                <el-submenu :key="menu.path" :index="menu.path">
                     <template slot="title">
-                        <i v-if="group.icon" :class="group.icon" />
-                        <span>{{ group.title }}</span>
+                        <i :class="menu.icon || defaultIcon" />
+                        <span slot="title">{{ menu.title }}</span>
                     </template>
-                    <!-- item -->
-                    <template v-if="group.children && group.children.length > 0">
-                        <el-menu-item v-for="item in group.children" :key="item.path" :index="item.path">
-                            <i v-if="item.icon" :class="item.icon" />
-                            <span>{{ item.title }}</span>
-                        </el-menu-item>
-                    </template>
-                </el-menu-item-group>
+                    <el-menu-item
+                        v-for="item in menu.children"
+                        :key="getItemPath(menu.path, item.path)"
+                        :index="getItemPath(menu.path, item.path)"
+                    >
+                        <i v-if="item.icon" :class="item.icon" />
+                        <span>{{ item.title }}</span>
+                    </el-menu-item>
+                </el-submenu>
             </template>
-            <!-- 无 group -->
-            <template v-else-if="submenu.children && submenu.children.length > 0">
-                <!-- item -->
-                <el-menu-item v-for="item in submenu.children" :key="item.path" :index="item.path">
-                    <i v-if="item.icon" :class="item.icon" />
-                    <span>{{ item.title }}</span>
+            <!-- 没有子菜单 -->
+            <template v-else>
+                <el-menu-item :key="menu.path" :index="menu.path">
+                    <i :class="menu.icon || defaultIcon" />
+                    <span slot="title">{{ menu.title }}</span>
                 </el-menu-item>
             </template>
-        </el-submenu>
+        </template>
     </el-menu>
 </template>
 
@@ -55,21 +49,9 @@ export default class Menu extends Vue {
 
     menus: MenuConfig[] = menuConfig;
     defaultIcon: string = DEFAULT_ICON;
-}
-</script>
 
-<style scoped lang="less">
-@buttonWidth: 50px;
-
-.container {
-    position: relative;
-
-    .folder-button {
-        position: absolute;
-        right: -@buttonWidth;
-        top: 0;
-        width: @buttonWidth;
-        z-index: 10;
+    getItemPath(parentPath: string, childPath: string) {
+        return `${parentPath}${childPath}`;
     }
 }
-</style>
+</script>
