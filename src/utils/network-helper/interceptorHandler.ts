@@ -20,7 +20,7 @@ const HTTP_CODE_HASH: {[propName: string]: string} = {
     101: '数据已存在',
     102: 'JWT token生成错误',
     400: '错误请求',
-    401: '未登录或登陆过期，请重新登陆',
+    401: '未登录或登录过期，请重新登录',
     403: '没有该中心的访问权限，如有需要请与管理员联系',
     404: '未找到相关数据',
     405: '请求方法未允许',
@@ -32,7 +32,7 @@ const HTTP_CODE_HASH: {[propName: string]: string} = {
     1001: '请求超时，请稍后重试'
 };
 
-// 需要重新登陆的状态码
+// 需要重新登录的状态码
 const LOGOUT_CODE = [401, 403];
 
 // 不需要 token 的请求
@@ -93,7 +93,7 @@ export const loadingRequestHandler: InterceptorRequestHandler = {
 
 // 请求拦截 - 添加 token
 export const tokenRequestHandler: InterceptorRequestHandler = {
-    // 正常请求向 header 中添加 token (除登陆或者退出登录之外的请求）
+    // 正常请求向 header 中添加 token (除登录或者退出登录之外的请求）
     onFulfilled: (config) => {
         const token = window.localStorage.getItem('_roboToken');
         const isFreeTokenRequest = FREE_TOKEN_REQUEST_URL.includes(config.url as string);
@@ -138,7 +138,7 @@ export const commonErrorHandler: InterceptorResponseHandler = {
             if (!(config.extraInfo && config.extraInfo.noErrorHint)) {
                 hintNetError(+data.code, errorInfo);
             }
-            // 登陆状态异常
+            // 登录状态异常
             if (LOGOUT_CODE.includes(+data.code)) {
                 exceptionLogout(+data.code);
             }
@@ -155,7 +155,7 @@ export const commonErrorHandler: InterceptorResponseHandler = {
         } else {
             hintNetError(+response.status);
         }
-        // 登陆状态异常
+        // 登录状态异常
         if (LOGOUT_CODE.includes(+response.status)) {
             exceptionLogout(+response.status);
         }

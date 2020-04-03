@@ -8,7 +8,7 @@ import {CommonUrls} from '@/utils';
 import {Message} from 'element-ui';
 import {ROOT_LOGOUT_MUTATION} from '@/store/root-store/store-types';
 
-// 验证登陆状态
+// 验证登录状态
 const getLoginCheckNextStep: GetLoginCheckNextStep = (toPath) => {
     const isLogin = store.getters.isLogin();
     switch (toPath.toLowerCase()) {
@@ -36,10 +36,13 @@ const getRoleCheckNextStep: GetRoleCheckNextStep = (toPath) => {
 
 // 全局前置导航
 const beforeEachCallback: NavigationGuard = (to, from, next) => {
-    // 验证登陆状态
+    // 验证登录状态
     const loginNextStep = getLoginCheckNextStep(to.path);
     if (loginNextStep === NextSteps.Login) {
-        Message.error('登陆信息失效，请重新登陆');
+        // 从根目录过来时不提示
+        if (![CommonUrls.Root as string, CommonUrls.Login as string].includes(from.path)) {
+            Message.error('登录信息失效，请重新登录');
+        }
         store.commit(ROOT_LOGOUT_MUTATION);
         next(CommonUrls.Login);
         return;

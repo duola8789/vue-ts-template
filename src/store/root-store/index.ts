@@ -36,7 +36,7 @@ const getters: RootGetters = {
         return !!token;
     },
     isAuthorized(state) {
-        // 此处验证登陆状态的处理比较简单，仅仅区分了两种角色，如果是更细粒度的权限可以在全局状态中保存一个 URL 列表，在此进行比对
+        // 此处验证登录状态的处理比较简单，仅仅区分了两种角色，如果是更细粒度的权限可以在全局状态中保存一个 URL 列表，在此进行比对
         return !!(state.role && state.role === 'admin');
     }
 };

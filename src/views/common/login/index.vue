@@ -11,7 +11,7 @@
                 </el-form-item>
             </el-form>
             <div class="login-button-container">
-                <el-button class="form-button" type="primary" @click="loginHandler">登陆</el-button>
+                <el-button class="form-button" type="primary" @click="loginHandler">登录</el-button>
                 <el-button class="form-button" @click="resetFormHandler">重置</el-button>
             </div>
         </div>
@@ -52,7 +52,7 @@ export default class Login extends Vue {
                 await this.getUserRole(this.username);
                 this.$message({
                     type: 'success',
-                    message: '登陆成功',
+                    message: '登录成功',
                     duration: 1000,
                     onClose: () => {
                         this.$router.push('/');
