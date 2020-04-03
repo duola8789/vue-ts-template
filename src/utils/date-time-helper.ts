@@ -1,18 +1,15 @@
-import {format, addDays, subDays} from 'date-fns';
+/**
+ * @file 日期、时间相关格式化参数，采用了 date-fns 作为工具
+ * https://date-fns.org/docs/Getting-Started
+ */
+import {format, addDays, subDays, differenceInSeconds} from 'date-fns';
 
 // 时间格式化
-const formatTimeHelper = (formatStr = 'YYYY-MM-DD HH:mm:ss', date = new Date()): string => {
+export const formatTimeHelper = (date: Date | number, formatStr = 'yyyy-MM-dd HH:mm:ss'): string => {
     return format(date, formatStr);
 };
 
-// 按天增加
-const addDayHelper = (days: number, date = new Date()): Date => {
-    return addDays(date, days);
+// 日期差（秒）
+export const differenceInSecondsHelper = (laterDate: Date, earlierDate = new Date()): number => {
+    return differenceInSeconds(laterDate, earlierDate);
 };
-
-// 按天减少
-const subDaysHelper = (days: number, date = new Date()): Date => {
-    return subDays(date, days);
-};
-
-export {formatTimeHelper, addDayHelper, subDaysHelper};

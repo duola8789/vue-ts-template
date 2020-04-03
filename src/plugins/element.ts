@@ -17,7 +17,8 @@ import {
     Message,
     Alert,
     Form,
-    FormItem
+    FormItem,
+    Popover
 } from 'element-ui';
 
 [
@@ -36,7 +37,8 @@ import {
     Loading,
     Alert,
     Form,
-    FormItem
+    FormItem,
+    Popover
 ].forEach((Comp) => Vue.use(Comp));
 
 Vue.prototype.$notify = Notification;

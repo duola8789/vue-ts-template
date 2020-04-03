@@ -5,6 +5,7 @@
         :collapse="isCollapse"
         :collapse-transition="false"
         :default-active="$route.path"
+        :unique-opened="true"
     >
         <el-submenu v-for="submenu in menus" :key="submenu.path" :index="submenu.path">
             <!-- submenu -->

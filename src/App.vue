@@ -17,6 +17,11 @@ body {
     padding: 0;
     margin: 0;
     height: 100%;
+    font-size: 100px;
+}
+
+body {
+    font-size: 14px;
 }
 
 #app {
@@ -25,8 +30,9 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-size: 14px;
-    color: #2c3e50;
+    color: #333;
     height: 100%;
-    min-width: 960px;
+    min-width: 1280px;
+    font-weight: normal;
 }
 </style>

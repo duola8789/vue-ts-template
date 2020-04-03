@@ -8,33 +8,24 @@ import {
     ROOT_GET_USER_ROLE_ACTION
 } from '@/store/root-store/store-types';
 
-export interface UserInfo {
-    username: string;
-    userId: string;
-}
-
-export interface RootLoginResponse extends UserInfo {
+export interface RootLoginResponse {
     token: string;
+    username: string;
 }
 
 export interface RootState {
-    token: string | null;
-    userInfo: UserInfo | null;
-    userRole: string;
+    token: string;
+    username: string;
+    role: string;
 }
 
 export interface RootGetters extends GetterTree<RootState, RootState> {
     isLogin(): () => boolean;
     isAuthorized(state: RootState): boolean;
-    username(state: RootState): string;
-    userId(state: RootState): string;
 }
 
 export interface RootMutations extends MutationTree<RootState> {
-    [ROOT_UPDATE_USER_INFO_MUTATION](
-        state: RootState,
-        payload: {token: string; userInfo: {username: string; userId: string}}
-    ): void;
+    [ROOT_UPDATE_USER_INFO_MUTATION](state: RootState, payload: {token: string; username: string}): void;
     [ROOT_UPDATE_USER_ROLE_MUTATION](state: RootState, role: string): void;
     [ROOT_LOGOUT_MUTATION](state: RootState): void;
 }

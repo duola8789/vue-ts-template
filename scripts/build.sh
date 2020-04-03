@@ -43,15 +43,4 @@ mkdir output
 # 复制 dist 目录下的产出到 output 目录下
 cp -rf dist/* output/
 
-# 复制前端部署脚本到output/bin目录下
-mkdir -p output/bin
-cp -rf bin/* output/bin/
-
-# 将前端产出先打包为 front.tar.gz，再由持续集成系统二次打包为 output.tar.gz
-cd output
-tar -zcf front.tar.gz ./*
-rm -rf ./bin
-rm -rf ./static
-rm -rf ./index.html
-
 echo "----- build end------"

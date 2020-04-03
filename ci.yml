@@ -1,18 +1,18 @@
 Global:
-  tool: build_submitter
+    tool: build_submitter
 
 Default:
-  profile: [release]
+    profile: [production]
 
 Profiles:
-  - profile:
-    name: release
-    env: cmc_standard
-    command: sh ./scripts/build.sh
-    release: true
+    - profile:
+      name: production
+      env: cmc_standard
+      command: sh ./scripts/build.sh
+      release: true
 
-  - profile:
-    name: staging
-    env: cmc_standard
-    command: sh ./scripts/build.sh staging
-    release: true
+    - profile:
+      name: staging
+      env: cmc_standard
+      command: sh ./scripts/build.sh staging
+      release: true

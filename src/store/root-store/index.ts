@@ -21,46 +21,47 @@ import {
     ROOT_GET_USER_ROLE_ACTION,
     ROOT_GET_USER_ROLE_URL
 } from '@/store/root-store/store-types';
-import {request, getLocalStorageHelper, setLocalStorageHelper, removeLocalStorageHelper} from '@/utils';
+import {request} from '@/utils';
 
 const state: RootState = {
-    token: getLocalStorageHelper('token'),
-    userInfo: getLocalStorageHelper('userInfo'),
-    userRole: ''
+    token: window.localStorage.getItem('_roboToken') || '',
+    username: window.localStorage.getItem('_roboUsername') || '',
+    role: window.localStorage.getItem('_roboRole') || ''
 };
 
 const getters: RootGetters = {
     isLogin: () => () => {
-        const token = getLocalStorageHelper('token');
-        const userInfo = getLocalStorageHelper('userInfo');
-        return !!token && !!userInfo && !!userInfo.userId;
-    },
-    username(state) {
-        return state.userInfo ? state.userInfo.username : '';
-    },
-    userId(state) {
-        return state.userInfo ? state.userInfo.userId : '';
+        // 没有在前端处理 token 过期的情况，如果需要处理，需要使用封装的 getLocalStorageHelper 和 setLocalStorageHelper
+        const token = window.localStorage.getItem('_roboToken');
+        return !!token;
     },
     isAuthorized(state) {
-        return !!state.userInfo;
+        // 此处验证登陆状态的处理比较简单，仅仅区分了两种角色，如果是更细粒度的权限可以在全局状态中保存一个 URL 列表，在此进行比对
+        return !!(state.role && state.role === 'admin');
     }
 };
 
 const mutations: RootMutations = {
     // 更新用户信息
-    [ROOT_UPDATE_USER_INFO_MUTATION](state, {token, userInfo}) {
-        state.token = token;
-        state.userInfo = userInfo;
+    [ROOT_UPDATE_USER_INFO_MUTATION](state, {token, username}) {
+        state.token = token || state.token;
+        state.username = username || state.username;
+        window.localStorage.setItem('_roboToken', state.token);
+        window.localStorage.setItem('_roboUsername', state.username);
     },
     // 更新权限信息
     [ROOT_UPDATE_USER_ROLE_MUTATION](state, role) {
-        state.userRole = role;
+        state.role = role ? role.toLocaleLowerCase() : state.role;
+        window.localStorage.setItem('_roboRole', state.role);
     },
     // 退出登录
     [ROOT_LOGOUT_MUTATION](state) {
         state.token = '';
-        state.userInfo = null;
-        state.userRole = '';
+        state.username = '';
+        state.role = '';
+        window.localStorage.removeItem('_roboToken');
+        window.localStorage.removeItem('_roboUsername');
+        window.localStorage.removeItem('_roboRole');
     }
 };
 
@@ -69,29 +70,24 @@ const actions: RootActions = {
     async [ROOT_LOGIN_ACTION]({commit}) {
         const {code, data} = await request.post<RootLoginResponse>(ROOT_LOGIN_URL);
         if (code === 0 && data) {
-            const {token = '', username = '', userId = ''} = data;
-            const userInfo = {username, userId};
-            commit(ROOT_UPDATE_USER_INFO_MUTATION, {token, userInfo});
-            setLocalStorageHelper('token', token);
-            setLocalStorageHelper('userInfo', userInfo);
+            const {token = '', username = ''} = data;
+            commit(ROOT_UPDATE_USER_INFO_MUTATION, {token, username});
         }
         return code === 0;
     },
     // 获取用户权限
-    async [ROOT_GET_USER_ROLE_ACTION]({commit}, userId) {
-        const {code, data} = await request.post<{role: string}>(ROOT_GET_USER_ROLE_URL, {userId});
+    async [ROOT_GET_USER_ROLE_ACTION]({commit}, username) {
+        const {code, data} = await request.post<{role: string}>(ROOT_GET_USER_ROLE_URL, {username});
         if (code === 0 && data) {
             commit(ROOT_UPDATE_USER_ROLE_MUTATION, data.role);
         }
         return code === 0;
     },
     // 退出登录
-    async [ROOT_LOGOUT_ACTION]({state, commit}) {
-        const {code} = await request.post<{}>(ROOT_LOGOUT_URL, {userId: state.userInfo!.userId});
+    async [ROOT_LOGOUT_ACTION]({commit}) {
+        const {code} = await request.post<{}>(ROOT_LOGOUT_URL);
         if (code === 0) {
             commit(ROOT_LOGOUT_MUTATION);
-            removeLocalStorageHelper('token');
-            removeLocalStorageHelper('userInfo');
         }
         return code === 0;
     }

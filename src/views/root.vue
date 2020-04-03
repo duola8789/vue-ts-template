@@ -8,7 +8,7 @@
                 circle
                 @click="collapseMenu"
             />
-            <h1 class="title">{{ username }} -- {{ userId }} -- {{ userRole }}</h1>
+            <h1 class="title">{{ username }} -- {{ role }}</h1>
             <el-button icon="el-icon-user" class="logout-button" circle @click="logoutHandler" />
         </el-header>
         <el-container>
@@ -23,14 +23,21 @@
 </template>
 
 <script lang="ts">
-import {Component, Vue, Watch} from 'vue-property-decorator';
+import {Component, Vue} from 'vue-property-decorator';
 import {State, Getter, Action} from 'vuex-class';
 import Menu from '@/views/common/menu/index.vue';
-import {ROOT_GET_USER_ROLE_ACTION, ROOT_LOGOUT_ACTION} from '@/store/root-store/store-types';
-import {CommonUrls} from '@/router/types';
+import {ROOT_LOGOUT_ACTION} from '@/store/root-store/store-types';
+import {CommonUrls} from '@/utils';
 
 @Component({components: {Menu}})
 export default class App extends Vue {
+    @State role!: string;
+    @State username!: string;
+
+    @Getter isAuthorized!: boolean;
+
+    @Action(ROOT_LOGOUT_ACTION) logout!: () => Promise<boolean>;
+
     isCollapse: boolean = false;
 
     get menuClass(): string {
@@ -38,20 +45,6 @@ export default class App extends Vue {
     }
     get collapseButtonIcon(): string {
         return this.isCollapse ? 'el-icon-s-fold' : 'el-icon-s-unfold';
-    }
-
-    @State userRole!: string;
-
-    @Getter isAuthorized!: boolean;
-    @Getter username!: string;
-    @Getter userId!: string;
-
-    @Action(ROOT_LOGOUT_ACTION) logout!: () => Promise<boolean>;
-    @Action(ROOT_GET_USER_ROLE_ACTION) getUserRole!: (userId: string) => Promise<string>;
-
-    @Watch('$route.path')
-    onRoutePathChanged(newPath: string) {
-        this.checkUserRole(newPath);
     }
 
     collapseMenu() {
@@ -70,20 +63,6 @@ export default class App extends Vue {
                 }
             });
         }
-    }
-
-    checkUserRole(currentPath: string): void {
-        if (!this.isAuthorized) {
-            this.$router.replace(CommonUrls.Forbidden).catch(() => {});
-        }
-        if (currentPath.toLowerCase() === CommonUrls.Root) {
-            this.$router.replace(CommonUrls.Default).catch(() => {});
-        }
-    }
-
-    async created() {
-        await this.getUserRole(this.userId);
-        await this.checkUserRole(this.$route.path);
     }
 }
 </script>
@@ -104,7 +83,7 @@ export default class App extends Vue {
             height: inherit;
             line-height: inherit;
             font-size: 20px;
-            color: @mainColor;
+            color: @mainTextColor;
         }
 
         .collapse-button {

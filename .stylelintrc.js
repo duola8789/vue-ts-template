@@ -25,8 +25,8 @@ module.exports = {
         'function-parentheses-newline-inside': null,
         // url使用引号
         'function-url-quotes': 'always',
-        // 禁止小于 1 的小数的前导 0
-        'number-leading-zero': 'never',
+        // 要求小于 1 的小数的前导 0
+        'number-leading-zero': 'always',
         // 字符串使用单引号
         'string-quotes': 'single',
         // 要求选择器列表的逗号之前有一个换行符

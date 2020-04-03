@@ -1,33 +1,34 @@
 import Vue from 'vue';
 import VueRouter, {RouteConfig} from 'vue-router';
-import exampleRoutes from '@/router/modules/example.ts';
 import {lazyLoadHelper} from '@/utils';
 import {beforeEachCallback, beforeResolveCallback, afterEachCallback} from '@/router/router-guards/index';
-import {CommonUrls} from './types';
+import {CommonUrls} from '@/utils';
+
+import exampleRoutes from '@/router/modules/example.ts';
 
 Vue.use(VueRouter);
 
 const routes: RouteConfig[] = [
     {
         path: CommonUrls.Login,
-        name: 'login',
         component: lazyLoadHelper('common/login/index')
     },
     {
         path: CommonUrls.Root,
-        name: 'layout',
-        component: lazyLoadHelper('common/layout'),
+        component: lazyLoadHelper('root'),
         children: [
             ...exampleRoutes,
             {
                 path: CommonUrls.Forbidden,
-                name: 'Forbidden',
                 component: lazyLoadHelper('common/403')
             },
             {
-                path: '*',
-                name: 'NotFound',
+                path: CommonUrls.NotFound,
                 component: lazyLoadHelper('common/404')
+            },
+            {
+                path: '*',
+                redirect: CommonUrls.NotFound
             }
         ]
     }
