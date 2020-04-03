@@ -55,7 +55,6 @@ const beforeEachCallback: NavigationGuard = (to, from, next) => {
         next(CommonUrls.Root);
         return;
     }
-    next();
 
     // 验证权限
     const roleNextStep = getRoleCheckNextStep(to.path);
