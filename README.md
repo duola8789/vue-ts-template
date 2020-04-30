@@ -24,9 +24,29 @@ Vue + TypeScript 项目模板，源自使用[Vue-Cli@4](https://cli.vuejs.org/zh
 8. 预置三个环境变量和对应的编译脚本（`development`/`production`/`staging`）
 9. 按需引入ElementUI（[ElementUI插件](https://github.com/ElementUI/vue-cli-plugin-element)）
 10. 封装好的导航组件（[el-menu](https://element.eleme.cn/#/zh-CN/component/menu)）
-10. 单元测试（Vue-Cli@4 + Jest）
-11. `/src/utils`中其他一些预置的辅助方法（[date-fns](https://date-fns.org/) + [js-cookie](https://github.com/js-cookie/js-cookie)）
-12. 针对百度内部的持续集成脚本
+11. 百度地图的引入以及辅助方法（如果不需引入的话需要手动删除来压缩代码）
+12. Websocket的辅助方法
+13. 单元测试（Vue-Cli@4 + Jest）
+14. `/src/utils`中其他一些预置的辅助方法（[date-fns](https://date-fns.org/) + [js-cookie](https://github.com/js-cookie/js-cookie)）
+15. 针对百度内部的持续集成脚本
+
+## 代码提交
+
+使用根目录下的 `git_push_nolint.sh` 脚本进行提交
+
+```BASH
+git_push_nolint.sh feature-v1
+```
+
+## 技术栈
+
+主要技术栈：
+
+- Vue
+- TypeScript
+- Vue-Router
+- Vuex
+- ElementUI
 
 ## 脚本
 

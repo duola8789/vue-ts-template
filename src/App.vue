@@ -11,7 +11,7 @@ import {Component, Vue} from 'vue-property-decorator';
 export default class App extends Vue {}
 </script>
 
-<style>
+<style lang="less">
 html,
 body {
     padding: 0;
@@ -22,6 +22,36 @@ body {
 
 body {
     font-size: 14px;
+}
+
+@media screen and (max-width: 1441px) {
+    html {
+        font-size: 66px;
+    }
+}
+
+@media screen and (min-width: 1440px) and (max-width: 1921px) {
+    html {
+        font-size: 75px;
+    }
+}
+
+@media screen and (min-width: 1920px) and (max-width: 2561px) {
+    html {
+        font-size: 100px;
+    }
+}
+
+@media screen and (min-width: 2560px) and (max-width: 3841px) {
+    html {
+        font-size: 133px;
+    }
+}
+
+@media screen and (min-width: 3840px) {
+    html {
+        font-size: 200px;
+    }
 }
 
 #app {

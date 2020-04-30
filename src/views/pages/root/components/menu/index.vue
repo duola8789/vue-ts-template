@@ -39,7 +39,7 @@
 <script lang="ts">
 import {Component, Prop, Vue} from 'vue-property-decorator';
 import menuConfig from './config';
-import {MenuConfig} from '@/views/common/menu/types';
+import {MenuConfig} from '@/views/pages/root/components/menu/types';
 
 const DEFAULT_ICON: string = 'el-icon-setting';
 

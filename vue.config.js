@@ -4,10 +4,14 @@
 const path = require('path');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
 
+// 将打包后的 JS/CSS/IMG/FONTS 等资源统一放到 static 目录中
+const ASSERTS_DIR = 'static';
+
 module.exports = {
     lintOnSave: process.env.NODE_ENV === 'development' ? 'warning' : false,
+    assetsDir: process.env.NODE_ENV !== 'development' ? ASSERTS_DIR : '',
     devServer: {
-        port: 8000,
+        port: 8006,
         disableHostCheck: true
     },
     configureWebpack: {
@@ -42,12 +46,14 @@ module.exports = {
     }
 };
 
+
 function addStyleResource(rule) {
     rule.use('style-resource')
         .loader('style-resources-loader')
         .options({
             patterns: [
                 path.resolve(__dirname, './src/styles/variables.less'),
+                path.resolve(__dirname, './src/styles/baidu-map.less'),
                 path.resolve(__dirname, './src/styles/mixins.less')
             ]
         });

@@ -1,5 +1,5 @@
 <template>
-    <div id="app" class="container">
+    <div class="container">
         <el-header class="head" height="60px">
             <el-button
                 v-if="isAuthorized"
@@ -25,7 +25,7 @@
 <script lang="ts">
 import {Component, Vue} from 'vue-property-decorator';
 import {State, Getter, Action} from 'vuex-class';
-import Menu from '@/views/common/menu/index.vue';
+import Menu from '@/views/pages/root/components/menu/index.vue';
 import {ROOT_LOGOUT_ACTION} from '@/store/root-store/store-types';
 import {CommonUrls} from '@/utils';
 

@@ -11,20 +11,20 @@ Vue.use(VueRouter);
 const routes: RouteConfig[] = [
     {
         path: CommonUrls.Login,
-        component: lazyLoadHelper('common/login/index')
+        component: lazyLoadHelper('pages/common/login/index')
     },
     {
         path: CommonUrls.Root,
-        component: lazyLoadHelper('root'),
+        component: lazyLoadHelper('pages/root/index'),
         children: [
             ...exampleRoutes,
             {
                 path: CommonUrls.Forbidden,
-                component: lazyLoadHelper('common/403')
+                component: lazyLoadHelper('pages/common/403')
             },
             {
                 path: CommonUrls.NotFound,
-                component: lazyLoadHelper('common/404')
+                component: lazyLoadHelper('pages/common/404')
             },
             {
                 path: '*',

@@ -1,8 +1,21 @@
 /**
  * @file 通用辅助函数
  */
-import {ElForm} from 'element-ui/types/form';
 import {differenceInSecondsHelper} from '@/utils';
+import {debounce, cloneDeep} from 'lodash-es';
+
+// 防抖
+export const debounceHelper = (func: () => any, wait = 1000, options = {}) => {
+    if (typeof func !== 'function') {
+        throw new Error('target of debounce must be a function...');
+    }
+    return debounce(func, wait, options);
+};
+
+// 深拷贝
+export const deepCloneHelper = (value: any) => {
+    return cloneDeep(value);
+};
 
 // 生成全局唯一的 Id
 export const uIdHelper = (function uuid() {
@@ -81,3 +94,22 @@ export const parseJSON = (content: string): object | null => {
         return null;
     }
 };
+
+// 四舍五入， digit 为保留几位小数
+export const mathRound = (num: number, digit = 0) => {
+    if (!/^\d*$/.test(String(digit)) || digit < 0) {
+        throw new Error('mathRound 的第二个参数 digit 须为正整数');
+    }
+    const digitalNum = Math.pow(10, digit);
+    return Math.round(num * digitalNum) / digitalNum;
+};
+
+// 对象形式参数转换为字符串形式（只处理了参数值为字符串的形式）
+export const stringifyParams = (params: {[keys: string]: string}) =>
+    Object.keys(params).reduce((total, key, index, thisArr) => {
+        total += `${key}=${params[key]}${index === thisArr.length - 1 ? '' : '&'}`;
+        return total;
+    }, '');
+
+// 返回范围内的随机整数
+export const getRandomInteger = (min: number, max: number) => min + Math.ceil((max - min) * Math.random());

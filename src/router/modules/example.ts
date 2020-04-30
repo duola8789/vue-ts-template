@@ -8,7 +8,7 @@ const exampleRoutes: RouteConfig[] = [
     },
     {
         path: '/example/hello-vue',
-        component: lazyLoadHelper('example/hello-vue/index')
+        component: lazyLoadHelper('pages/example/hello-vue/index')
     }
 ];
 
