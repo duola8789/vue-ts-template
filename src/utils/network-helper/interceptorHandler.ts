@@ -124,6 +124,7 @@ export const loadingResponseHandler: InterceptorResponseHandler = {
         if (!(err.config.extraInfo && err.config.extraInfo.noGlobalLoading)) {
             loadingCounter.subLoading();
         }
+        return Promise.reject(err);
     }
 };
 
