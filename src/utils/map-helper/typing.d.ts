@@ -13,15 +13,6 @@ declare namespace BMap {
         setMapStyle(styleJson: any): void;
         addEventListener(type: string, cb: (type: string, target: any) => void): void;
     }
-    class Convertor {
-        constructor();
-        translate(
-            points: Point[],
-            from: number,
-            to: number,
-            callback: (result: {status: number; points: Point[]}) => void
-        ): void;
-    }
     interface Marker {
         extraInfo: any;
     }

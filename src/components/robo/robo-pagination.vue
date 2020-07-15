@@ -2,7 +2,7 @@
     <el-pagination
         class="robo-pagination"
         background
-        :hide-on-single-page="true"
+        :hide-on-single-page="false"
         :current-page="currentPage"
         :page-sizes="[10, 20, 50, 100]"
         :page-size="pageSize"

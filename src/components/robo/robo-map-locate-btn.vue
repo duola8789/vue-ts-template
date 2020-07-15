@@ -34,6 +34,8 @@ export default class RoboMapLocateBtn extends Vue {
     background: url('~@/assets/icons/bd-map/icon-map-locate.png') no-repeat center center;
     background-size: cover;
     cursor: pointer;
+    user-select: none;
+
     .linear-transition();
 }
 </style>

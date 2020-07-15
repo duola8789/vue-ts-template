@@ -19,7 +19,7 @@ export default class RoboPassportLogin extends Vue {
     id = 'passportContainer';
 
     passportPreLogin() {
-        passport.use('login', {tangram: true, loginVersion: 'v4', defaultCss: false}, (magic) => {
+        passport.use('login', {tangram: true, loginVersion: 'v4', defaultCss: true}, (magic) => {
             const {origin, search} = window.location;
             const staticPage = `${origin}/passport/v3Jump.html`;
             const targetUrl = search ? `${origin}/${search}/#/login` : `${origin}/#/login`;

@@ -33,6 +33,7 @@ export default class RoboMapResizeBtn extends Vue {
     width: 0.4rem;
     height: 0.8rem;
     cursor: pointer;
+    user-select: none;
 
     .zoom-btn {
         height: 0.4rem;

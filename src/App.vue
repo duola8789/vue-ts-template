@@ -65,4 +65,16 @@ body {
     min-width: 1280px;
     font-weight: normal;
 }
+
+input::-webkit-credentials-auto-fill-button {
+    display: none !important;
+    visibility: hidden;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+}
+
+input:focus::-webkit-contacts-auto-fill-button {
+    opacity: 0;
+}
 </style>

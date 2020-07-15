@@ -16,7 +16,6 @@ declare module 'axios' {
     export interface CustomSuccessData<T> {
         code: number;
         msg?: string;
-        message?: string;
         data?: T;
         [keys: string]: any;
     }
