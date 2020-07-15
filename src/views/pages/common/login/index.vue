@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="login-container">
         <div class="inner-container">
             <h1 class="login-title">Vue + TypeScript</h1>
             <el-form ref="loginForm" :model="loginInfo" :rules="formRules">
@@ -14,6 +14,12 @@
                 <el-button class="form-button" type="primary" @click="loginHandler">登录</el-button>
                 <el-button class="form-button" @click="resetFormHandler">重置</el-button>
             </div>
+        </div>
+        <div class="login-background">
+            <picture>
+                <source srcset="~@/assets/images/login/login-background.webp" type="image/webp" />
+                <img class="login-background-img" srcset="~@/assets/images/login/login-background.png" alt="" />
+            </picture>
         </div>
     </div>
 </template>
@@ -69,20 +75,20 @@ export default class Login extends Vue {
 </script>
 
 <style scoped lang="less">
-.container {
+.login-container {
+    position: relative;
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: url('~@/assets/images/login-background.png') no-repeat center center;
-    background-size: cover;
 
     .inner-container {
         width: 400px;
+        z-index: 2;
 
         .login-title {
             text-align: center;
-            color: #333;
+            color: #fff;
             font-size: 32px;
             margin-bottom: 20px;
         }
@@ -93,6 +99,22 @@ export default class Login extends Vue {
             .form-button {
                 flex: 1;
             }
+        }
+    }
+
+    .login-background {
+        position: absolute;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        overflow: hidden;
+
+        .login-background-img {
+            width: 100%;
+            height: auto;
         }
     }
 }
