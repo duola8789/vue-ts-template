@@ -21,13 +21,13 @@ export default class RoboTime extends Vue {
         if (newVal === oldVal) {
             return;
         }
-        this.clearTimeInterval();
         this.innerTime = newVal;
+        this.timeDiff = newVal - Date.now();
         this.changeTimeInterval();
     }
 
     intervalTimer = 0;
-
+    timeDiff = 0;
     innerTime = Date.now();
 
     get dateString() {
@@ -48,7 +48,7 @@ export default class RoboTime extends Vue {
     changeTimeInterval() {
         this.clearTimeInterval();
         this.intervalTimer = setInterval(() => {
-            this.innerTime += 1000;
+            this.innerTime = Date.now() + this.timeDiff;
         }, 1000);
     }
 
