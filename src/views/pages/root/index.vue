@@ -71,6 +71,7 @@ export default class App extends Vue {
 .container {
     display: flex;
     flex-direction: column;
+    height: 100%;
 
     .head {
         position: relative;
