@@ -4770,6 +4770,11 @@ functional-red-black-tree@^1.0.1:
   resolved "http://registry.npm.baidu-int.com/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz#1b0ab3bd553b2a0d6399d29c0e3ea0b252078327"
   integrity sha1-GwqzvVU7Kg1jmdKcDj6gslIHgyc=
 
+gcoord@^0.2.3:
+  version "0.2.3"
+  resolved "https://registry.npmjs.org/gcoord/-/gcoord-0.2.3.tgz#bdf8d48ed199785177eb29727ef3ab16b29d895e"
+  integrity sha512-BxSlrzGzv/tNzkyTS3/wWTH/EL0dWFLGNAC2wNFPUrlJ5dm9qrzgE6G1kuT/hjkbzr68tlDimcw6wZ3YCwHWzg==
+
 gensync@^1.0.0-beta.1:
   version "1.0.0-beta.1"
   resolved "http://registry.npm.baidu-int.com/gensync/-/gensync-1.0.0-beta.1.tgz#58f4361ff987e5ff6e1e7a210827aa371eaac269"

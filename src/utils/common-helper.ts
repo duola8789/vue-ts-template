@@ -113,3 +113,9 @@ export const stringifyParams = (params: {[keys: string]: string}) =>
 
 // 返回范围内的随机整数
 export const getRandomInteger = (min: number, max: number) => min + Math.ceil((max - min) * Math.random());
+
+// 根据屏幕宽度对传入的宽度进行缩放
+export const getWithByScreen = (width: number, min = Infinity) => {
+    const screenWidth = document.documentElement.clientWidth;
+    return Math.min(mathRound(width * (screenWidth / 1920), 2), Infinity);
+};

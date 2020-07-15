@@ -5,10 +5,9 @@
  * 所有坐标二维数组，都需要经度在前，纬度在后
  */
 import {
-    NumberArray2,
     Point,
     InitMap,
-    AddMapIcon,
+    AddMapMarker,
     AddMapLabel,
     AddMapLines,
     AddMapLine,
@@ -18,60 +17,44 @@ import {
     SetMapViewport,
     ChangeMarkerIcon,
     AddMapMask,
-    GetMapBoundsPoint
+    GetMapBoundsPoint,
+    AddMarkerAnimation,
+    ResetMap,
+    GetLabelOffsetYByHeadingAngle,
+    ChangeLabelContent
 } from './types';
 import {styleJson} from '@/utils/map-helper/custorm-style';
 
-import {DEFAULT_MAP_ZOOM} from '@/config';
-
-// 根据屏幕宽度，获取地图尺寸的调整因子，可以手动传入系数
-const _getScaleByScreenSize = (handleScale = 1) => {
-    const screenWidth = document.documentElement.clientWidth;
-    if (screenWidth < 1440) {
-        return -0.3 * handleScale;
-    }
-    if (screenWidth < 1920) {
-        return -0.25 * handleScale;
-    }
-    if (screenWidth < 2560) {
-        return 0;
-    }
-    if (screenWidth < 3840) {
-        return 1.3 * handleScale;
-    }
-    return 2 * handleScale;
-};
+import {DEFAULT_MAP_ZOOM, DEFAULT_MAP_INFO} from '@/config';
+import {Position} from 'gcoord/dist/types/geojson';
+import {transform, WGS84, BD09} from 'gcoord';
+import {getWithByScreen, mathRound} from '@/utils';
 
 // 判断是不是一个 bd09 的百度地图坐标点
 const _isBMapPoint = (point: any): boolean => !!point && point instanceof BMap.Point;
-
-// 坐标转换：http://lbsyun.baidu.com/index.php?title=webapi/guide/changeposition
-export const mapConvertor = new BMap.Convertor();
 
 // 地址查询：http://lbsyun.baidu.com/jsdemo.htm#i7_2
 export const geoCoder = new BMap.Geocoder();
 
 // 转换坐标点
-// 约定：传入的是数组格式那么会转换为 bd09 的坐标点，如果传入的 bd09 坐标点，那么会原样返回
+// 约定：传入的是数组格式，那么认为传入的是 WGS84 坐标，会转换为 bd09 的坐标点
+// 如果传入的 bd09 坐标点，那么会原样返回
 export const convertPoint: ConvertPoint = (point, from = 1, to = 5) => {
-    if (_isBMapPoint(point)) {
-        return point as Point;
-    }
-    return new Promise((resolve, reject) => {
-        mapConvertor.translate([new BMap.Point(...(point as NumberArray2))], from, to, (res) => {
-            // 监控转换失败
-            if (!res || res.status !== 0 || !Array.isArray(res.points)) {
-                if (process.env.NODE_ENV === 'development') {
-                    console.error(res, '坐标点转换失败');
-                }
-            }
-            if (res.status === 0) {
-                resolve(res.points[0]);
-            } else {
-                reject();
+    if (Array.isArray(point)) {
+        const HASH = {
+            1: WGS84,
+            5: BD09
+        };
+        return new Promise((resolve) => {
+            try {
+                const result = transform([point[0], point[1]], HASH[from], HASH[to]);
+                resolve(new BMap.Point((result as Position)[0], (result as Position)[1]));
+            } catch (e) {
+                console.error(e, '坐标转换失败');
             }
         });
-    });
+    }
+    return point;
 };
 
 // 生成地图
@@ -81,30 +64,34 @@ export const initMap: InitMap = async (id, options) => {
         throw new Error(`地图容器节点不存在！(id: ${id})`);
     }
 
+    const _options = options ? options : {};
+
     // 转换中心坐标
-    const bdCenterPoint = await convertPoint(options.centerPoint);
+    const bdCenterPoint = await convertPoint(_options.centerPoint || DEFAULT_MAP_INFO.defaultCenter);
 
-    const zoom = options && options.zoom ? options.zoom : DEFAULT_MAP_ZOOM;
-    const minZoom = options && options.minZoom ? options.minZoom : 5;
-    const maxZoom = options && options.maxZoom ? options.maxZoom : 19;
+    const zoom = _options.zoom ? _options.zoom : DEFAULT_MAP_ZOOM;
+    const minZoom = _options.minZoom ? _options.minZoom : 5;
+    const maxZoom = _options.maxZoom ? _options.maxZoom : 19;
 
-    const styleId = options && options.styleId;
+    const enableScrollWheelZoom = _options.enableScrollWheelZoom === true;
+    const enableMapClick = !(_options.enableMapClick === false);
+    const disableDragging = _options.disableDragging ? _options.disableDragging : false;
+    const disableDoubleClickZoom = _options.disableDoubleClickZoom === true;
 
-    const enableScrollWheelZoom = options && options.enableScrollWheelZoom === true;
-    const enableMapClick = !(options && options.enableMapClick === false);
-    const disableDragging = options && options.disableDragging ? options.disableDragging : false;
-    const disableDoubleClickZoom = options && options.disableDoubleClickZoom === true;
+    // 使用个性化地图样式
+    const customStyle = !(_options.customStyle === false);
 
-    const mapOptions = {minZoom, maxZoom, enableMapClick};
+    // 关闭室内图
+    const enableIndoorLayer = false;
+
+    const mapOptions = {minZoom, maxZoom, enableMapClick, enableIndoorLayer};
 
     return new Promise((resolve) => {
         const map = new BMap.Map(id, mapOptions);
         map.centerAndZoom(bdCenterPoint, zoom);
 
-        // 自定义地图样式
-        if (styleId) {
-            map.setMapStyleV2({styleId});
-        } else {
+        // 个性化地图样式
+        if (customStyle) {
             map.setMapStyleV2({styleJson});
         }
 
@@ -124,17 +111,74 @@ export const initMap: InitMap = async (id, options) => {
             map.disableDoubleClickZoom();
         }
 
+        if (customStyle) {
+            // 监听 mapStyle 请求完成时间，一个内部 API
+            map.addEventListener('initindoorlayer', async () => {
+                resolve(map);
+            });
+        } else {
+            resolve(map);
+        }
+    });
+};
+
+// 设定中心
+export const setMapCenter: SetMapCenter = async (map, point) => {
+    let pt = await convertPoint(point);
+    map.setCenter(pt);
+    return map;
+};
+
+// 根据传入的点设置地图视野
+export const setMapViewport: SetMapViewport = async (map, points, options) => {
+    const needScaled = !(options && options.needScaled === false);
+
+    // 处理坐标点
+    let convertPoints: Point[] = [];
+    for (const point of points) {
+        const isValidPoint = (Array.isArray(point) && point.length > 1) || _isBMapPoint(point);
+        if (!isValidPoint) {
+            continue;
+        }
+        convertPoints.push(await convertPoint(point));
+    }
+
+    const margins =
+        options && options.margins ? options.margins.map((v) => (needScaled ? getWithByScreen(v) : v)) : [0, 0, 0, 0];
+
+    const opt = {
+        zoomFactor: options && options.zoomFactor ? options.zoomFactor : 0,
+        enableAnimation: false,
+        margins,
+        delay: 0
+    };
+
+    return new Promise(async (resolve) => {
+        map.setViewport(convertPoints, opt);
         resolve(map);
     });
+};
+
+// 重新设定地图中心
+export const resetMap: ResetMap = async (map, centerPoint, zoom) => {
+    // 转换中心坐标
+    const pt = centerPoint ? centerPoint : DEFAULT_MAP_INFO.defaultCenter;
+    const bdCenterPoint = await convertPoint(pt);
+    const zoomLevel = zoom || DEFAULT_MAP_ZOOM;
+    map.centerAndZoom(bdCenterPoint, zoomLevel);
+    return map;
 };
 
 // 绘制单条线路
 export const addMapLine: AddMapLine = async (map, line, options) => {
     const DEFAULT_OPTIONS = {
         strokeColor: '#47dcf3',
-        strokeWeight: 4 + _getScaleByScreenSize(2),
+        strokeWeight: getWithByScreen(4),
         strokeOpacity: 1
     };
+
+    // 默认缩放
+    const needScaled = !(options && options.needScaled === false);
 
     // 处理坐标点
     let convertPoints = [];
@@ -159,14 +203,14 @@ export const addMapLines: AddMapLines = async (map, lines, options) => {
     return await Promise.all(addPromises);
 };
 
-// 添加图标 Icon
-export const addMapIcon: AddMapIcon = async (map, point, icon, options) => {
+// 添加图标 marker
+export const addMapMarker: AddMapMarker = async (map, point, icon, options) => {
     // Icon 尺寸
     const needScaled = !(options && options.needScaled === false);
-    const scaledSize = icon.size.map((v) => _getScaleByScreenSize(needScaled ? v : 0) + v);
+    const scaledSize = icon.size.map((v) => (needScaled ? getWithByScreen(v) : v));
     const sizeInMap = new BMap.Size(scaledSize[0], scaledSize[1]);
 
-    // 传入的是二维数组，那么都需要坐标转换，如果传入的 bd09 坐标点，则不需要处理
+    // 处理坐标点
     const pt = await convertPoint(point);
 
     const mapIcon = new BMap.Icon(icon.src, sizeInMap);
@@ -185,7 +229,90 @@ export const addMapIcon: AddMapIcon = async (map, point, icon, options) => {
     map.addOverlay(marker);
 
     if (options && options.needAnimation) {
-        marker.setAnimation(options.animationEffect);
+        // 添加水波纹动画
+        if (!options.animationEffect) {
+            const animationSize = options && options.animationSize ? options.animationSize : icon.size[0];
+            const animationScale = options && options.animationScale ? options.animationScale : 1;
+            const animationInfinite = options && options.animationInfinite === true;
+            marker = addMarkerAnimation(marker, {
+                size: animationSize,
+                scale: animationScale,
+                needScaled,
+                infinite: animationInfinite
+            });
+        } else {
+            marker.setAnimation(options.animationEffect);
+        }
+    }
+
+    return marker;
+};
+
+// 为 marker 添加水波纹动画
+export const addMarkerAnimation: AddMarkerAnimation = (marker, options) => {
+    const size = options && options.size ? options.size : 50;
+    const infinite = !!(options && options.infinite === true);
+    const scale = options && options.size ? options.size : 1;
+
+    const content =
+        `<div class="water-animation-in-map ${
+            infinite ? 'water-animation-in-map-infinite' : ''
+        }" style="width: ${size}px; height: ${size}px; transform: scale(${scale})">` +
+        '  <div class="water-animation1"></div>' +
+        '  <div class="water-animation2"></div>' +
+        '  <div class="water-animation3"></div>' +
+        '</div>';
+    const label = new BMap.Label(content);
+    label.setStyle({
+        position: 'relative',
+        padding: 0,
+        border: 'none',
+        background: 'none',
+        zIndex: -1
+    });
+    marker.setLabel(label);
+    return marker;
+};
+
+// 更换 marker 的 icon
+export const changeMarkerIcon: ChangeMarkerIcon = (marker, options) => {
+    const withAnimation = !!options.withAnimation;
+    const {icon, iconSize} = options;
+
+    // 获取当前 icon
+    const targetIcon = marker.getIcon();
+
+    // Icon 尺寸
+    const needScaled = !(options && options.needScaled === false);
+    const scaledSize = iconSize.map((v) => (needScaled ? getWithByScreen(v) : v));
+    const sizeInMap = new BMap.Size(scaledSize[0], scaledSize[1]);
+
+    if (targetIcon) {
+        // 设置 icon 图片
+        targetIcon.setImageUrl(icon);
+        // 设置 icon 图片尺寸
+        targetIcon.setImageSize(new BMap.Size(...iconSize));
+        // 恢复 icon 尺寸
+        targetIcon.setSize(new BMap.Size(...iconSize));
+        // 恢复 icon 偏移量
+        targetIcon.setAnchor(new BMap.Size(iconSize[0] / 2, iconSize[1] / 2));
+        // 设置 icon
+        marker.setIcon(targetIcon);
+        // 如果 marker 设置了动画效果，那么更改图标时需要清除
+        if (withAnimation) {
+            marker.getLabel().setStyle({display: 'none'});
+        }
+    }
+
+    // 获取当前 旋转角度
+    const targetRotation = marker.getRotation();
+    if (targetRotation && targetRotation > 0) {
+        // 设置旋转角度
+        marker.setRotation(targetRotation);
+    }
+
+    if (options && options.zIndex) {
+        marker.setZIndex(options.zIndex);
     }
 
     return marker;
@@ -195,20 +322,21 @@ export const addMapIcon: AddMapIcon = async (map, point, icon, options) => {
 export const addMapLabel: AddMapLabel = async (target, text, point, offset, className, options) => {
     const needTriangle = options && options.needTriangle === true;
     const needScaled = !(options && options.needScaled === false);
-    const scaledOffsetY = needScaled ? _getScaleByScreenSize(offset[1] * 0.75) + offset[1] : offset[1];
-
-    // 文本标注所在的地理位置
-    const pt = await convertPoint(point);
+    const scaledOffsetY = needScaled ? getWithByScreen(offset[1]) : offset[1];
 
     // label 的参数
-    const opts = {
-        position: pt,
+    let opts: any = {
         // 设置文本偏移量
         offset: new BMap.Size(offset[0], scaledOffsetY)
     };
 
+    // 如果是直接添加 label 的话需要指定位置，如果是为 maker 添加 label 则不需要
+    if (target instanceof BMap.Map) {
+        // 文本标注所在的地理位置
+        opts.position = await convertPoint(point);
+    }
+
     // label 的 html 节点
-    // map-label-triangle 样式需要在组件中手动调用 .map-label-triangle() 样式 mixin
     const content =
         `<div class="${className}">` +
         `<div class="map-label-text">${text}</div>` +
@@ -228,9 +356,6 @@ export const addMapLabel: AddMapLabel = async (target, text, point, offset, clas
             : DEFAULT_LABEL_STYLE;
     label.setStyle(labelStyle);
 
-    // label 标题
-    label.setTitle(text);
-
     if (target instanceof BMap.Map) {
         target.addOverlay(label);
     } else {
@@ -240,74 +365,38 @@ export const addMapLabel: AddMapLabel = async (target, text, point, offset, clas
     return label;
 };
 
-// 根据 IP 地址获取文字描述
-export const getMapLocation: GetMapLocation = async (point) => {
-    const pt = await convertPoint(point);
+// 更改 label 样式
+export const changeLabelContent: ChangeLabelContent = (label, content, offset, options) => {
+    const [offsetX, offsetY] = offset;
+    const scaledOffsetX = options && options.needScaled ? getWithByScreen(offsetX) : offsetX;
+    const scaledOffsetY = options && options.needScaled ? getWithByScreen(offsetY) : offsetY;
 
-    return new Promise((resolve) => {
-        geoCoder.getLocation(pt, (rs) => {
-            if (rs) {
-                resolve(rs.address || '未知地点');
-            } else {
-                resolve('未知地点');
-                throw new Error(`坐标点获取地理位置失败, [${pt.lng}, ${pt.lat}]`);
-            }
-        });
-    });
-};
-
-// 设定中心
-export const setMapCenter: SetMapCenter = async (map, point) => {
-    let pt = await convertPoint(point);
-    map.setCenter(pt);
-    return map;
-};
-
-// 根据传入的点设置地图视野
-export const setMapViewport: SetMapViewport = async (map, points, options) => {
-    // 处理坐标点
-    let convertPoints: Point[] = [];
-    for (const point of points) {
-        const isValidPoint = (Array.isArray(point) && point.length > 1) || _isBMapPoint(point);
-        if (!isValidPoint) {
-            continue;
-        }
-        convertPoints.push(await convertPoint(point));
+    //替换Label显示内容
+    if (content) {
+        label.setContent(content);
     }
 
-    const opt = {
-        zoomFactor: options && options.zoomFactor ? options.zoomFactor : 0,
-        enableAnimation: true,
-        margins: options && options.margins ? options.margins : [0, 0, 0, 0],
-        delay: 200
-    };
-    return new Promise(async (resolve) => {
-        map.setViewport(convertPoints, opt);
-        resolve(map);
-    });
+    // 设置文本偏移量
+    label.setOffset(new BMap.Size(scaledOffsetX, scaledOffsetY));
+
+    if (options && options.zIndex) {
+        label.setZIndex(options.zIndex);
+    }
+
+    return label;
 };
 
-// 更换 marker 的 icon
-export const changeMarkerIcon: ChangeMarkerIcon = (marker, iconSize, icon, withAnimation = false) => {
-    // 获取当前 icon
-    const targetIcon = marker.getIcon();
-    if (targetIcon) {
-        // 设置 icon 图片
-        targetIcon.setImageUrl(icon);
-        // 设置 icon 图片尺寸
-        targetIcon.setImageSize(new BMap.Size(...iconSize));
-        // 恢复 icon 尺寸
-        targetIcon.setSize(new BMap.Size(...iconSize));
-        // 恢复 icon 偏移量
-        targetIcon.setAnchor(new BMap.Size(iconSize[0] / 2, iconSize[1] / 2));
-        // 设置 icon
-        marker.setIcon(targetIcon);
-        // 如果 marker 设置了动画效果，那么更改图标时需要清除
-        if (withAnimation) {
-            marker.getLabel().setStyle({display: 'none'});
-        }
-    }
-    return marker;
+// 根据朝向角获取 Label 的 Y 轴偏移量，0°/180° = -labelHeight - baseGap ，90°/2170° = -labelHeight
+// 注意，使用此方法是，Label 的 Y 轴不要有定位偏移或者 translateY
+export const getOffsetYByHeadingAngle: GetLabelOffsetYByHeadingAngle = (
+    labelHeight,
+    baseGap,
+    headingAngle,
+    options
+) => {
+    const needScaled = !(options && options.needScaled === false);
+    const result = -labelHeight - baseGap * mathRound(Math.abs(Math.cos(Math.PI * (headingAngle / 180))), 2);
+    return needScaled ? getWithByScreen(result) : result;
 };
 
 // 获取地图的边界定点组成的数组，顺序为[西北角、东北角、东南角、西南角]
@@ -332,4 +421,20 @@ export const addMapMask: AddMapMask = (map, options) => {
     const mask = new BMap.Polygon(points, polyOptions);
     map.addOverlay(mask);
     return mask;
+};
+
+// 根据 IP 地址获取文字描述
+export const getMapLocation: GetMapLocation = async (point) => {
+    const pt = await convertPoint(point);
+
+    return new Promise((resolve) => {
+        geoCoder.getLocation(pt, (rs) => {
+            if (rs) {
+                resolve(rs.address || '未知地点');
+            } else {
+                resolve('未知地点');
+                throw new Error(`坐标点获取地理位置失败, [${pt.lng}, ${pt.lat}]`);
+            }
+        });
+    });
 };

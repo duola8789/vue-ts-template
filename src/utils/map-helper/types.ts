@@ -6,33 +6,28 @@ export type Size = BMap.Size;
 export type Polyline = BMap.Polyline;
 export type NumberArray2 = [number, number];
 
-export interface RoboMapOptions {
-    centerPoint: NumberArray2 | BMap.Point;
-    zoom?: number;
-    minZoom?: number;
-    maxZoom?: number;
-    styleId?: string;
-    enableMapClick?: boolean;
-    enableScrollWheelZoom?: boolean;
-    disableDragging?: boolean;
-    disableDoubleClickZoom?: boolean;
-}
-
-export interface RoboMapLineOptions {
-    strokeColor?: string;
-    strokeWeight?: number;
-    strokeOpacity?: number;
-}
-
 export interface InitMap {
-    (id: string, options: RoboMapOptions): Promise<Map>;
+    (
+        id: string,
+        options?: {
+            centerPoint?: NumberArray2 | BMap.Point;
+            zoom?: number;
+            minZoom?: number;
+            maxZoom?: number;
+            customStyle?: boolean;
+            enableMapClick?: boolean;
+            enableScrollWheelZoom?: boolean;
+            disableDragging?: boolean;
+            disableDoubleClickZoom?: boolean;
+        }
+    ): Promise<Map>;
 }
 
 export interface ConvertPoint {
-    (point: NumberArray2 | Point, from?: number, to?: number): Promise<Point> | Point;
+    (point: NumberArray2 | Point, from?: 1 | 5, to?: 1 | 5): Promise<Point> | Point;
 }
 
-export interface AddMapIcon {
+export interface AddMapMarker {
     (
         map: Map,
         point: NumberArray2 | Point,
@@ -40,12 +35,26 @@ export interface AddMapIcon {
         options?: {
             needScaled?: boolean;
             needAnimation?: boolean;
+            animationEffect?: BMap.Animation; // 默认的动画效果
+            animationScale?: number;
+            animationInfinite?: boolean;
+            animationSize?: number;
             iconOffset?: Size;
             iconRotation?: number;
-            animationEffect?: BMap.Animation; // 默认的动画效果
-            animationInfinite?: boolean;
         }
     ): Promise<Marker>;
+}
+
+export interface AddMarkerAnimation {
+    (
+        marker: BMap.Marker,
+        options?: {
+            size: number;
+            scale: number;
+            infinite?: boolean;
+            needScaled?: boolean;
+        }
+    ): BMap.Marker;
 }
 
 export interface AddMapLabel {
@@ -60,11 +69,29 @@ export interface AddMapLabel {
 }
 
 export interface AddMapLine {
-    (map: Map, line: NumberArray2[] | Point[], options: RoboMapLineOptions): Promise<Polyline>;
+    (
+        map: Map,
+        line: NumberArray2[] | Point[],
+        options?: {
+            strokeColor?: string;
+            strokeWeight?: number;
+            strokeOpacity?: number;
+            needScaled?: boolean;
+        }
+    ): Promise<Polyline>;
 }
 
 export interface AddMapLines {
-    (map: Map, lines: NumberArray2[][] | Point[][], options: RoboMapLineOptions): Promise<Polyline[]>;
+    (
+        map: Map,
+        lines: NumberArray2[][] | Point[][],
+        options?: {
+            strokeColor?: string;
+            strokeWeight?: number;
+            strokeOpacity?: number;
+            needScaled?: boolean;
+        }
+    ): Promise<Polyline[]>;
 }
 
 export interface GetMapLocation {
@@ -84,12 +111,22 @@ export interface SetMapViewport {
             enableAnimation?: boolean;
             zoomFactor?: number;
             delay?: number;
+            needScaled?: boolean;
         }
     ): Promise<Map>;
 }
 
 export interface ChangeMarkerIcon {
-    (marker: BMap.Marker, iconSize: [number, number], icon: string, withAnimation?: boolean): BMap.Marker;
+    (
+        marker: BMap.Marker,
+        options: {
+            iconSize: [number, number];
+            icon: string;
+            withAnimation?: boolean;
+            needScaled?: boolean;
+            zIndex: number;
+        }
+    ): BMap.Marker;
 }
 
 export interface GetMapBoundsPoint {
@@ -98,4 +135,28 @@ export interface GetMapBoundsPoint {
 
 export interface AddMapMask {
     (map: Map, options: {fillColor: string; fillOpacity: number}): BMap.Polygon;
+}
+
+export interface ResetMap {
+    (map: Map, centerPoint?: Point | NumberArray2, zoom?: number): Promise<Map>;
+}
+
+export interface GetLabelOffsetYByHeadingAngle {
+    (
+        labelHeight: number,
+        baseGap: number,
+        headingAngle: number,
+        options?: {
+            needScaled?: boolean;
+        }
+    ): number;
+}
+
+export interface ChangeLabelContent {
+    (
+        label: BMap.Label,
+        content: string,
+        iconOffset: NumberArray2,
+        options?: {zIndex?: number; needScaled?: boolean}
+    ): BMap.Label;
 }

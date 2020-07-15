@@ -43,7 +43,11 @@ declare namespace BMap {
 
 declare namespace BMapLib {
     class MarkerClusterer {
-        constructor(map: BMap.Map, params: {markers: BMap.Marker[]; styles?: any[]});
+        constructor(
+            map: BMap.Map,
+            params: {markers: BMap.Marker[]; gridSize?: number; maxZoom?: number; styles?: any[]; margins?: number[]},
+            isRich?: boolean
+        );
         setStyles(style: any[]): void;
         getStyles(): any[];
         clearMarkers(): void;
@@ -54,6 +58,6 @@ declare namespace BMapLib {
         getMarkers(): BMap.Marker[];
     }
     class TextIconOverlay {
-        constructor(map: BMap.Map, params: {markers: BMap.Marker[]});
+        constructor(map: BMap.Map, params: {markers: BMap.Marker[]}, isRich: boolean);
     }
 }
