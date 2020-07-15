@@ -7,6 +7,7 @@
         "build": "vue-cli-service build --modern",
         "build-dev": "vue-cli-service build --modern --mode development",
         "build-staging": "vue-cli-service build --modern --mode staging",
+        "build-testing": "vue-cli-service build --modern --mode testing",
         "test:unit": "vue-cli-service test:unit",
         "lint": "vue-cli-service lint",
         "analyze": "vue-cli-service build --modern --report",

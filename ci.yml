@@ -16,3 +16,9 @@ Profiles:
       env: cmc_standard
       command: sh ./scripts/build.sh staging
       release: true
+
+    - profile:
+      name: testing
+      env: cmc_standard
+      command: sh ./scripts/build.sh testing
+      release: true

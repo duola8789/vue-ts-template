@@ -17,7 +17,7 @@ module.exports = {
     configureWebpack: {
         plugins: [
             new StyleLintPlugin({
-                files: ['src/**/*.{vue,htm,html,css,sss,less,scss,sass}', ]
+                files: ['src/**/*.{vue,htm,html,css,sss,less,scss,sass}']
             })
         ]
     },
@@ -45,7 +45,6 @@ module.exports = {
         }
     }
 };
-
 
 function addStyleResource(rule) {
     rule.use('style-resource')

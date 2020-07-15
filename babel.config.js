@@ -7,6 +7,7 @@ module.exports = {
         [
             'component',
             {
+                // 按需引入 ElementUI，如果有自定义主题，需要将 styleLibraryName 改为 ~theme，theme为路径
                 libraryName: 'element-ui',
                 styleLibraryName: 'theme-chalk'
             }

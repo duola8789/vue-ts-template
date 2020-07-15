@@ -31,6 +31,8 @@ case "$1" in
     ;;
     'staging') build_command="build-staging"
     ;;
+    'testing') build_command="build-testing"
+    ;;
     *) build_command="build"
     ;;
 esac

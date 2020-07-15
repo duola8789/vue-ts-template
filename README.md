@@ -63,8 +63,11 @@ yarn build
 # 编译（开发环境）
 yarn build-dev
 
-# 编译（测试环境）
+# 编译（测试自测）
 yarn build-staging
+
+# 编译（测试环境）
+yarn build-testing
 
 # 本地 7000 端口预览编译后文件
 preview
