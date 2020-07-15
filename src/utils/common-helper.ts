@@ -119,3 +119,33 @@ export const getWithByScreen = (width: number, min = Infinity) => {
     const screenWidth = document.documentElement.clientWidth;
     return Math.min(mathRound(width * (screenWidth / 1920), 2), Infinity);
 };
+
+// 将数组按照 splitNum 分组
+export const splitArr = <T>(arr: T[], splitNum = 10): T[][] => {
+    let result = [];
+    let count = Math.ceil(arr.length / splitNum);
+    for (let i = 0; i < count; i++) {
+        const start = splitNum * i;
+        const end = splitNum * (i + 1);
+        result.push(arr.slice(start, end));
+    }
+    return result;
+};
+
+// 拼接 BaseUrl
+export const getBaseUrl = (baseUrl: string | undefined, params?: object): string => {
+    let base: string = '';
+    if (baseUrl && baseUrl.startsWith('http')) {
+        base = baseUrl;
+    } else {
+        const {protocol, host} = window.location;
+        base = `${protocol}//${host}${baseUrl}`;
+    }
+    const url = new URL('http://test');
+    if (params) {
+        for (const [key, value] of Object.entries(params)) {
+            url.searchParams.append(key, value);
+        }
+    }
+    return `${base}?${url.searchParams.toString()}`;
+};

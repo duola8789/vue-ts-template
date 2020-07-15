@@ -3,97 +3,91 @@
  */
 import {Message} from 'element-ui';
 
-import {stringifyParams, parseJSON} from '@/utils';
-import {WsConnectHelper, WsMessageHandler, WsEventHandlers, WsPushSubjects} from './types';
+// 开发模式下引入 WS 的 Mock 函数
+// process.env.NODE_ENV === 'development' && require('./mocker');
 
-import {mockStationChange} from '@/utils/ws-helper/mock';
-
-// 根据当前页面网络协议，获取对应的 WS 协议
-const _getWSUrl = (url: string, param: string) => {
-    const {protocol, host} = window.location;
-    const wsProtocol = protocol === 'https:' ? 'wss' : 'ws';
-    return `${wsProtocol}://${host}${WS_BASE_URL}${url}?${param}`;
-};
+import store from '@/store';
+import {stringifyParams} from '@/utils';
+import {WsConnectHelper, WsTopics} from './types';
 
 // 默认的 WS 连接前缀
 export const WS_BASE_URL = process.env.VUE_APP_WS_BASE_URL;
 
-// WS 事件处理程序的键名
-export const WS_EVENT_HANDLERS: WsEventHandlers = {
-    station: Symbol('station'), // 监控 - 站点
-    vehicle: Symbol('vehicle') // 监控 - 车辆
+// 获取完整的 WS 链接 URL，在此项 WS 链接后添加参数
+const _getWSUrl = (url: string, params: any) => {
+    const paramsUrl = stringifyParams(Object.assign({}, params));
+
+    if (WS_BASE_URL.startsWith('ws')) {
+        return `${WS_BASE_URL}${url}?${paramsUrl}`;
+    }
+
+    const {protocol, host} = window.location;
+    const wsProtocol = protocol === 'https:' ? 'wss' : 'ws';
+    return `${wsProtocol}://${host}${WS_BASE_URL}${url}?${paramsUrl}`;
+};
+
+// WS 链接路径
+export const WS_URLS = {
+    traffic: '/traffic'
 };
 
 // WS 推送的主题（服务端确定）
-export const WS_PUSH: WsPushSubjects = {
+export const WS_TOPICS: WsTopics = {
     station: 'v0', // 监控 - 站点
     vehicle: 'v1' // 监控 - 车辆
 };
 
 let errCount = 0;
+const hintWsError = () => {
+    if (errCount <= 0) {
+        errCount += 1;
+        Message.error({
+            message: '实时推送连接建立失败，请刷新页面重试',
+            onClose() {
+                errCount -= 1;
+            }
+        });
+    }
+};
+
 // 创建 WS 连接
 export const wsConnectHelper: WsConnectHelper = (url, params) => {
     return new Promise((resolve) => {
-        const token = window.localStorage.getItem('v2xToken') as string;
-        const tokenObj = params ? Object.assign({}, params, {token}) : {token};
-        const paramsUrl = stringifyParams(tokenObj);
-        const fullUrl = WS_BASE_URL.startsWith('ws') ? `${WS_BASE_URL}${url}?${paramsUrl}` : _getWSUrl(url, paramsUrl);
+        const {token} = store.state;
         if (token) {
+            const fullUrl = _getWSUrl(url, params);
             const ws = new WebSocket(fullUrl);
+
             ws.onopen = () => {
                 resolve(ws);
             };
+
             ws.onerror = () => {
-                if (errCount <= 0) {
-                    errCount += 1;
-                    Message.error({
-                        message: 'WebSocket连接建立失败，请刷新页面重试',
-                        onClose() {
-                            errCount -= 1;
-                        }
-                    });
-                }
+                hintWsError();
             };
-        } else {
-            Message.error('token不存在，请刷新页面');
         }
     });
 };
 
-// WS 事件处理函数
-export const wsMessageHandler: WsMessageHandler = async (messageEvent, params, commit) => {
+// 解析 WS 推送的数据
+export const parseMessageEvent = (messageEvent: MessageEvent): any => {
+    if (!messageEvent) {
+        return null;
+    }
+    const {data} = messageEvent;
+
+    if (!data || typeof data !== 'string' || ['fail', 'ok'].includes(data)) {
+        if (messageEvent.data === 'fail') {
+            hintWsError();
+        }
+        return null;
+    }
+
     try {
-        const {type, isMock = false, extraInfo} = params;
-
-        const wsData = parseJSON(messageEvent.data);
-        if (!wsData) {
-            return;
-        }
-
-        switch (type) {
-            case WS_EVENT_HANDLERS.station: {
-                // // 传入定义的相应数据的类型，如下的 any，并对 WS 推送的主题再次进行验证
-                // const {wsType} = wsData as any;
-                // if (wsType === 1) {
-                //     // do something...
-                // }
-                // // 在本地定时器模拟 WS 推送时需要将 isMock 设定为 true，并传入 vuex 的 module 路径
-                // const namespace = isMock ? 'monitorManagement/trafficMonitor/' : '';
-                //
-                // // 更新当日交通事件
-                // const payload: ExamplePayload = {}
-                // commit(namespace + WS_DAY_TRAFFIC_EVENTS_MUTATION, payload);
-                break;
-            }
-
-            default: {
-                break;
-            }
-        }
+        const res = JSON.parse(data);
+        return res.data || null;
     } catch (e) {
-        throw new Error(e);
+        console.error(e, 'ws 解析错误');
+        return null;
     }
 };
-
-// mock
-// mockStationChange(WS_EVENT_HANDLERS.station, true, 5000);
