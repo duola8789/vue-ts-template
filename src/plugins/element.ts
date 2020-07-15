@@ -18,7 +18,8 @@ import {
     Alert,
     Form,
     FormItem,
-    Popover
+    Popover,
+    MessageBox
 } from 'element-ui';
 
 [
@@ -45,3 +46,4 @@ Vue.prototype.$notify = Notification;
 Vue.prototype.$loading = Loading.service;
 Vue.prototype.$fullLoading = () => Loading.service({lock: true, background: 'rgba(0, 0, 0, 0.7)'});
 Vue.prototype.$message = Message;
+Vue.prototype.$confirm = MessageBox.confirm;

@@ -33,5 +33,5 @@ export interface RootMutations extends MutationTree<RootState> {
 export interface RootActions extends ActionTree<RootState, RootState> {
     [ROOT_LOGIN_ACTION](actionContext: ActionContext<RootState, RootState>): Promise<boolean>;
     [ROOT_LOGOUT_ACTION](actionContext: ActionContext<RootState, RootState>): Promise<boolean>;
-    [ROOT_GET_USER_ROLE_ACTION](actionContext: ActionContext<RootState, RootState>, userId: string): Promise<boolean>;
+    [ROOT_GET_USER_ROLE_ACTION](actionContext: ActionContext<RootState, RootState>, username: string): Promise<boolean>;
 }

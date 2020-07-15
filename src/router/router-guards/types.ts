@@ -3,10 +3,6 @@
  */
 
 // 路由导航下一步动作
-// Next 对应 next()
-// Stay 对应 next(false)
-// Login 对应 next('/login')
-// Root 对应 next('/')
 export enum NextSteps {
     Next,
     Stay,
@@ -19,6 +15,8 @@ export interface GetLoginCheckNextStep {
     (toPath: string): NextSteps.Next | NextSteps.Stay | NextSteps.Login | NextSteps.Root;
 }
 
+export type RoleCheckNextSte = NextSteps.Next | NextSteps.Forbidden | NextSteps.Root | NextSteps.Stay;
+
 export interface GetRoleCheckNextStep {
-    (toPath: string, fromPath?: string): NextSteps.Next | NextSteps.Forbidden;
+    (toPath: string, fromPath?: string): Promise<RoleCheckNextSte>;
 }

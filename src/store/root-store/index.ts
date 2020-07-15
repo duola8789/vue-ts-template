@@ -23,16 +23,20 @@ import {
 } from '@/store/root-store/store-types';
 import {request} from '@/utils';
 
+const KEY_PREFIX = '_robo_';
+const TOKEN_KEY = `${KEY_PREFIX}token`;
+const USERNAME_KEY = `${KEY_PREFIX}username`;
+
 const state: RootState = {
-    token: window.localStorage.getItem('_roboToken') || '',
-    username: window.localStorage.getItem('_roboUsername') || '',
-    role: window.localStorage.getItem('_roboRole') || ''
+    token: window.localStorage.getItem(TOKEN_KEY) || '',
+    username: window.localStorage.getItem(USERNAME_KEY) || '',
+    role: ''
 };
 
 const getters: RootGetters = {
     isLogin: () => () => {
         // 没有在前端处理 token 过期的情况，如果需要处理，需要使用封装的 getLocalStorageHelper 和 setLocalStorageHelper
-        const token = window.localStorage.getItem('_roboToken');
+        const token = window.localStorage.getItem(TOKEN_KEY);
         return !!token;
     },
     isAuthorized(state) {
@@ -46,22 +50,20 @@ const mutations: RootMutations = {
     [ROOT_UPDATE_USER_INFO_MUTATION](state, {token, username}) {
         state.token = token || state.token;
         state.username = username || state.username;
-        window.localStorage.setItem('_roboToken', state.token);
-        window.localStorage.setItem('_roboUsername', state.username);
+        window.localStorage.setItem(TOKEN_KEY, state.token);
+        window.localStorage.setItem(USERNAME_KEY, state.username);
     },
     // 更新权限信息
     [ROOT_UPDATE_USER_ROLE_MUTATION](state, role) {
         state.role = role ? role.toLocaleLowerCase() : state.role;
-        window.localStorage.setItem('_roboRole', state.role);
     },
     // 退出登录
     [ROOT_LOGOUT_MUTATION](state) {
         state.token = '';
         state.username = '';
         state.role = '';
-        window.localStorage.removeItem('_roboToken');
-        window.localStorage.removeItem('_roboUsername');
-        window.localStorage.removeItem('_roboRole');
+        window.localStorage.removeItem(TOKEN_KEY);
+        window.localStorage.removeItem(USERNAME_KEY);
     }
 };
 
@@ -80,6 +82,8 @@ const actions: RootActions = {
         const {code, data} = await request.post<{role: string}>(ROOT_GET_USER_ROLE_URL, {username});
         if (code === 0 && data) {
             commit(ROOT_UPDATE_USER_ROLE_MUTATION, data.role);
+        } else {
+            commit(ROOT_UPDATE_USER_ROLE_MUTATION, 'user');
         }
         return code === 0;
     },

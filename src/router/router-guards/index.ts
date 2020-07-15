@@ -6,7 +6,11 @@ import {NextSteps, GetLoginCheckNextStep, GetRoleCheckNextStep} from './types';
 import store from '@/store/index';
 import {CommonUrls} from '@/utils';
 import {Message} from 'element-ui';
-import {ROOT_LOGOUT_MUTATION} from '@/store/root-store/store-types';
+import {
+    ROOT_GET_USER_ROLE_ACTION,
+    ROOT_LOGOUT_MUTATION,
+    ROOT_UPDATE_USER_ROLE_MUTATION
+} from '@/store/root-store/store-types';
 
 // 验证登录状态
 const getLoginCheckNextStep: GetLoginCheckNextStep = (toPath) => {
@@ -22,20 +26,29 @@ const getLoginCheckNextStep: GetLoginCheckNextStep = (toPath) => {
 };
 
 // 验证权限
-const getRoleCheckNextStep: GetRoleCheckNextStep = (toPath) => {
-    const isAuthorized = store.getters.isAuthorized;
+const getRoleCheckNextStep: GetRoleCheckNextStep = async (toPath) => {
     // 以这些 url 卡头的路径不需要验证权限
-    const isNoCheckPath = [CommonUrls.Login, CommonUrls.NotFound, CommonUrls.Forbidden].some(
-        (path) => path === toPath.toLocaleLowerCase()
-    );
+    const isNoCheckPath = [CommonUrls.Login, CommonUrls.NotFound].some((path) => path === toPath.toLocaleLowerCase());
     if (isNoCheckPath) {
         return NextSteps.Next;
+    }
+    const role = store.state.role;
+    if (!role) {
+        try {
+            await store.dispatch(ROOT_GET_USER_ROLE_ACTION);
+        } catch (e) {
+            store.commit(ROOT_UPDATE_USER_ROLE_MUTATION, 'user');
+        }
+    }
+    const isAuthorized = store.getters.isAuthorized;
+    if (toPath === CommonUrls.Forbidden) {
+        return isAuthorized ? NextSteps.Root : NextSteps.Next;
     }
     return isAuthorized ? NextSteps.Next : NextSteps.Forbidden;
 };
 
 // 全局前置导航
-const beforeEachCallback: NavigationGuard = (to, from, next) => {
+const beforeEachCallback: NavigationGuard = async (to, from, next) => {
     // 验证登录状态
     const loginNextStep = getLoginCheckNextStep(to.path);
     if (loginNextStep === NextSteps.Login) {
@@ -57,10 +70,18 @@ const beforeEachCallback: NavigationGuard = (to, from, next) => {
     }
 
     // 验证权限
-    const roleNextStep = getRoleCheckNextStep(to.path);
+    const roleNextStep = await getRoleCheckNextStep(to.path);
     if (roleNextStep === NextSteps.Forbidden) {
         Message.error('您没有此模块访问权限，如有需要请与管理员联系');
         next(CommonUrls.Forbidden);
+        return;
+    }
+    if (roleNextStep === NextSteps.Stay) {
+        next(false);
+        return;
+    }
+    if (roleNextStep === NextSteps.Root) {
+        next(CommonUrls.Root);
         return;
     }
     next();

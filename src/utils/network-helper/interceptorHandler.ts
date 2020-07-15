@@ -95,7 +95,7 @@ export const loadingRequestHandler: InterceptorRequestHandler = {
 export const tokenRequestHandler: InterceptorRequestHandler = {
     // 正常请求向 header 中添加 token (除登录或者退出登录之外的请求）
     onFulfilled: (config) => {
-        const token = window.localStorage.getItem('_roboToken');
+        const token = store.state.token;
         const isFreeTokenRequest = FREE_TOKEN_REQUEST_URL.includes(config.url as string);
         if (!isFreeTokenRequest && token) {
             config.headers.token = token;

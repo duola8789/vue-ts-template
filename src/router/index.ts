@@ -11,7 +11,7 @@ Vue.use(VueRouter);
 const routes: RouteConfig[] = [
     {
         path: CommonUrls.Login,
-        component: lazyLoadHelper('pages/common/login/index')
+        component: lazyLoadHelper('pages/common/login')
     },
     {
         path: CommonUrls.Root,
