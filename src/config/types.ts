@@ -1,6 +1,6 @@
 export interface MapInfo {
     [keys: string]: {
-        defaultCenter: BMap.Point;
+        defaultCenter: any;
         cityName: string;
     };
 }
