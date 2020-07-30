@@ -1,0 +1,17 @@
+/**
+ * 可复用样式函数, 在 SCSS 文件中可直接使用，例如 px2vw(50px)
+ */
+
+// px 转换为 vw，只能传入px
+@function px2vw($px) {
+    $width: 1920px;
+
+    @return round($px / $width * 10000) / 100 * 1vw;
+}
+
+// px 转换为 vh，只能传入px
+@function px2vh($px) {
+    $height: 1080px;
+
+    @return round($px / $height * 10000) / 100 * 1vh;
+}
