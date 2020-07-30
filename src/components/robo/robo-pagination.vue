@@ -33,7 +33,7 @@ export default class RoboPagination extends Vue {
     }
 }
 </script>
-<style lang="less">
+<style lang="scss">
 .robo-pagination.el-pagination.is-background {
     .btn-next,
     .btn-prev,
@@ -42,7 +42,7 @@ export default class RoboPagination extends Vue {
     }
 }
 </style>
-<style scoped lang="less">
+<style scoped lang="scss">
 .robo-pagination {
     margin-top: 15px;
     text-align: right;

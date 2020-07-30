@@ -5,6 +5,8 @@
  */
 module.exports = {
     extends: 'stylelint-config-standard',
+    syntax: 'scss',
+    plugins: ['stylelint-scss'],
     rules: {
         // 颜色值避免直接使用颜色名
         'color-named': [
@@ -34,7 +36,7 @@ module.exports = {
         // 在媒体查询的逗号之前禁止有一换行
         'media-query-list-comma-newline-before': 'never-multi-line',
         // 缩进
-        'indentation': 4,
+        indentation: 4,
         // 禁止低优先级的选择器出现在高优先级的选择器之后
         'no-descending-specificity': null,
         // 禁止空源
@@ -44,5 +46,7 @@ module.exports = {
         // 多个属性值时，逗号如何放置
         'value-list-comma-newline-after': null,
         'declaration-colon-newline-after': null,
+        'at-rule-no-unknown': null,
+        'scss/at-rule-no-unknown': true
     }
 };

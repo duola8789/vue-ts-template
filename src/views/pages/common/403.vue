@@ -13,7 +13,7 @@ import {Component, Vue} from 'vue-property-decorator';
 export default class Forbidden extends Vue {}
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .container {
     height: 100%;
     display: flex;

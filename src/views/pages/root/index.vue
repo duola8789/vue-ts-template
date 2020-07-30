@@ -67,7 +67,7 @@ export default class App extends Vue {
 }
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .container {
     display: flex;
     flex-direction: column;
@@ -84,7 +84,7 @@ export default class App extends Vue {
             height: inherit;
             line-height: inherit;
             font-size: 20px;
-            color: @mainTextColor;
+            color: $mainTextColor;
         }
 
         .collapse-button {

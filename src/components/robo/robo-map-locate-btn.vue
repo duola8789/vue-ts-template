@@ -27,7 +27,7 @@ export default class RoboMapLocateBtn extends Vue {
 }
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .robo-map-locate-btn {
     width: 0.4rem;
     height: 0.4rem;
@@ -35,7 +35,6 @@ export default class RoboMapLocateBtn extends Vue {
     background-size: cover;
     cursor: pointer;
     user-select: none;
-
-    .linear-transition();
+    transition: all linear 0.3s;
 }
 </style>

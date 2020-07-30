@@ -7,6 +7,7 @@ import router from './router';
 import store from './store';
 
 import '@/styles/reset.css';
+import '@/styles/baidu-map.scss';
 
 Vue.config.productionTip = false;
 

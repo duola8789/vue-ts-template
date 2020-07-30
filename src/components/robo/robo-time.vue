@@ -62,7 +62,7 @@ export default class RoboTime extends Vue {
 }
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .robo-time-container {
     display: flex;
     justify-content: flex-start;

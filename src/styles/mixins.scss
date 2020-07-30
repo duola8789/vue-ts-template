@@ -1,8 +1,8 @@
 /**
- * 可复用样式类, 无须手动导入，在 LESS 文件中可直接使用
+ * 可复用样式类, 在 SCSS 文件中可直接使用，例如 @include absCenter()
  */
 // 绝对定位居中
-.absCenter() {
+@mixin absCenter {
     position: absolute;
     left: 50%;
     top: 50%;
@@ -10,40 +10,40 @@
 }
 
 // 单行文字剪切
-.text-overflow() {
+@mixin text-overflow {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
 // 多行文字剪切
-.text-overflow-multiple(@line) {
+@mixin text-overflow-multiple($line) {
     display: -webkit-box;
-    -webkit-line-clamp: @line;
+    -webkit-line-clamp: $line;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
 // 线性渐变
-.linear-transition(@duration: 0.3s) {
-    transition: all linear @duration;
+@mixin linear-transition($duration: 0.3s) {
+    transition: all linear $duration;
 }
 
 // 按钮交互优化样式
-.nice-btn() {
+@mixin nice-btn {
     cursor: pointer;
     user-select: none;
 }
 
 // 地图文本框小三角标
-.map-label-triangle(@borderWidth) {
+@mixin map-label-triangle($borderWidth) {
     position: absolute;
     bottom: 0;
     left: 50%;
     display: block;
     width: 0;
     height: 0;
-    border: @borderWidth solid transparent;
+    border: $borderWidth solid transparent;
     border-top-color: inherit;
     transform: translate(-50%, 100%);
 }

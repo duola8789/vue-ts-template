@@ -98,7 +98,7 @@ export default class RoboSliderShow extends Vue {
 }
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .robo-slider {
     width: 100%;
     position: relative;

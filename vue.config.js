@@ -24,7 +24,7 @@ module.exports = {
     chainWebpack: (config) => {
         // 自动导入样式文件
         const types = ['vue-modules', 'vue', 'normal-modules', 'normal'];
-        types.forEach((type) => addStyleResource(config.module.rule('less').oneOf(type)));
+        types.forEach((type) => addStyleResource(config.module.rule('scss').oneOf(type)));
 
         // 配置 TypeScript 检查配置
         // https://github.com/TypeStrong/fork-ts-checker-webpack-plugin#options
@@ -51,9 +51,8 @@ function addStyleResource(rule) {
         .loader('style-resources-loader')
         .options({
             patterns: [
-                path.resolve(__dirname, './src/styles/variables.less'),
-                path.resolve(__dirname, './src/styles/baidu-map.less'),
-                path.resolve(__dirname, './src/styles/mixins.less')
+                path.resolve(__dirname, './src/styles/variables.scss'),
+                path.resolve(__dirname, './src/styles/mixins.scss')
             ]
         });
 }

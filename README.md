@@ -19,7 +19,7 @@ Vue + TypeScript 项目模板，源自使用[Vue-Cli@4](https://cli.vuejs.org/zh
 3. Vuex（Vue-Cli@4 + [vuex-class](https://github.com/ktsn/vuex-class/) ）
 4. 严格的代码检查工具（[ESLint](https://cn.eslint.org/) + [Prettier](https://prettier.io/) + [Stylelint](https://stylelint.io/)
 5. `commit`之前的代码检查（Vue-Cli@4 + [lint-staged](https://github.com/okonet/lint-staged))
-6. Less，并且自动导入全局样式变量（Vue-Cli@4 + [style-resources-loader](https://github.com/yenshih/style-resources-loader)）
+6. SCSS，并且自动导入全局样式变量（Vue-Cli@4 + [style-resources-loader](https://github.com/yenshih/style-resources-loader)）
 7. 针对Axios的封装（导出`get`等方法，全局Loading、网络错误自动提示并在`Vue.config.errorHandler`中捕获）
 8. 预置三个环境变量和对应的编译脚本（`development`/`production`/`staging`）
 9. 按需引入ElementUI（[ElementUI插件](https://github.com/ElementUI/vue-cli-plugin-element)）

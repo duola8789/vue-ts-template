@@ -51,7 +51,7 @@ export default class RoboOverflowText extends Vue {
 }
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .robo-overflow-text-container {
     .robo-normal-text {
         overflow: hidden;
@@ -67,7 +67,7 @@ export default class RoboOverflowText extends Vue {
     }
 }
 </style>
-<style lang="less">
+<style lang="scss">
 .robo-overflow-default-popper-class {
     &.el-popover {
         width: 22vw;

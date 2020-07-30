@@ -74,7 +74,7 @@ export default class Login extends Vue {
 }
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .login-container {
     position: relative;
     height: 100%;

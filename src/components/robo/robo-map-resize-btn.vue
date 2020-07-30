@@ -28,7 +28,7 @@ export default class RoboMapResizeBtn extends Vue {
 }
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .robo-map-resize-btn {
     width: 0.4rem;
     height: 0.8rem;
@@ -42,7 +42,7 @@ export default class RoboMapResizeBtn extends Vue {
         font-size: 0.26rem;
         color: #8aadff;
         background: #213c75;
-        .linear-transition(0.1s);
+        transition: all linear 0.1s;
 
         &:hover {
             color: #fff;

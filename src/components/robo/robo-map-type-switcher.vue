@@ -30,7 +30,7 @@ export default class RoboMapTypeSwitcher extends Vue {
 }
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .robo-map-type-switcher {
     color: #9fbcff;
     font-size: 0.16rem;
