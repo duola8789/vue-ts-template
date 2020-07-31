@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import RootStore from '@/store/root-store/index';
-import ExampleStore from '@/store/modules/example-store/index';
+import storeModules from '@/store/modules';
 
 Vue.use(Vuex);
 
@@ -12,6 +12,6 @@ export default new Vuex.Store({
     mutations: RootStore.mutations,
     actions: RootStore.actions,
     modules: {
-        example: ExampleStore
+        [storeModules.example.name]: storeModules.example.content
     }
 });

@@ -1,7 +1,9 @@
 import {MutationTree, GetterTree, ActionTree} from 'vuex';
 import {RootState} from '@/store/root-store/interface-types';
 
-export interface ExampleState {}
+export interface ExampleState {
+    test: string;
+}
 
 export interface ExampleGetters extends GetterTree<ExampleState, RootState> {}
 

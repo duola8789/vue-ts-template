@@ -5,7 +5,9 @@ import {
     ExampleActions
 } from '@/store/modules/example-store/interface-types';
 
-const state: ExampleState = {};
+const state: ExampleState = {
+    test: 'Hello'
+};
 
 const getters: ExampleGetters = {};
 

@@ -3,6 +3,9 @@
  */
 import {differenceInSecondsHelper} from '@/utils';
 import {debounce, cloneDeep} from 'lodash-es';
+import store from '@/store';
+import {StoreModuleName} from '@/store/modules/types';
+import storeModules from '@/store/modules';
 
 // 防抖
 export const debounceHelper = (func: () => any, wait = 1000, options = {}) => {
@@ -148,4 +151,21 @@ export const getBaseUrl = (baseUrl: string | undefined, params?: object): string
         }
     }
     return `${base}?${url.searchParams.toString()}`;
+};
+
+// 动态注册/卸载 Vuex Store
+export const registerStoreModule = (moduleName: StoreModuleName, isRegister: boolean) => {
+    const targetModule = storeModules[moduleName];
+    if (!moduleName || !targetModule) {
+        return;
+    }
+    if (isRegister) {
+        if (!store.hasModule(moduleName)) {
+            store.registerModule(targetModule.path, targetModule.content);
+        }
+    } else {
+        if (store.hasModule(moduleName)) {
+            store.unregisterModule(targetModule.path);
+        }
+    }
 };
