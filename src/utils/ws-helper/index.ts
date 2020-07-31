@@ -17,6 +17,10 @@ export const WS_BASE_URL = process.env.VUE_APP_WS_BASE_URL;
 const _getWSUrl = (url: string, params: any) => {
     const paramsUrl = stringifyParams(Object.assign({}, params));
 
+    if (url.startsWith('ws')) {
+        return `${url}?${paramsUrl}`;
+    }
+
     if (WS_BASE_URL.startsWith('ws')) {
         return `${WS_BASE_URL}${url}?${paramsUrl}`;
     }
