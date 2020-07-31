@@ -45,6 +45,9 @@ module.exports = {
                 return args;
             });
         }
+
+        // 移除 prefetch 插件
+        // config.plugins.delete('prefetch');
     }
 };
 
