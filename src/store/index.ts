@@ -12,6 +12,6 @@ export default new Vuex.Store({
     mutations: RootStore.mutations,
     actions: RootStore.actions,
     modules: {
-        [storeModules.example.name]: storeModules.example.content
+        [storeModules.example.path]: storeModules.example.content
     }
 });

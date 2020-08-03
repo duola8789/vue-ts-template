@@ -1,9 +1,7 @@
-import {
-    ExampleState,
-    ExampleGetters,
-    ExampleMutations,
-    ExampleActions
-} from '@/store/modules/example-store/interface-types';
+import {ExampleState, ExampleGetters, ExampleMutations, ExampleActions, ExampleModules} from './interface-types';
+import {STORE_EXAMPLE_DEMO1} from '@/store/modules/config';
+
+import Demo1Store from './modules/demo1-store/index';
 
 const state: ExampleState = {
     test: 'Hello'
@@ -15,4 +13,8 @@ const mutations: ExampleMutations = {};
 
 const actions: ExampleActions = {};
 
-export default {namespaced: true, state, getters, mutations, actions};
+const modules: ExampleModules = {
+    [STORE_EXAMPLE_DEMO1]: Demo1Store
+};
+
+export default {namespaced: true, state, getters, mutations, actions, modules};

@@ -85,7 +85,6 @@ const actions: RootActions = {
         } else {
             commit(ROOT_UPDATE_USER_ROLE_MUTATION, 'user');
         }
-        return code === 0;
     },
     // 退出登录
     async [ROOT_LOGOUT_ACTION]({commit}) {
