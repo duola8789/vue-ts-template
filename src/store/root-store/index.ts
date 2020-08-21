@@ -11,26 +11,31 @@ import {
     RootLoginResponse
 } from '@/store/root-store/interface-types';
 import {
-    ROOT_UPDATE_USER_INFO_MUTATION,
-    ROOT_UPDATE_USER_ROLE_MUTATION,
-    ROOT_LOGIN_URL,
-    ROOT_LOGIN_ACTION,
-    ROOT_LOGOUT_URL,
-    ROOT_LOGOUT_MUTATION,
-    ROOT_LOGOUT_ACTION,
-    ROOT_GET_USER_ROLE_ACTION,
-    ROOT_GET_USER_ROLE_URL
-} from '@/store/root-store/store-types';
-import {request} from '@/utils';
+    LOGIN_MUTATION,
+    LOGIN_ACTION,
+    LOGIN_URL,
+    USER_ROLE_MUTATION,
+    USER_ROLE_ACTION,
+    USER_ROLE_URL,
+    LOGOUT_MUTATION,
+    LOGOUT_ACTION,
+    LOGOUT_URL,
+    WS_MUTATION,
+    WS_CONNECT_ACTION,
+    WS_DISCONNECT_ACTION
+} from './store-types';
+import {request, WS_URLS, wsConnectHelper} from '@/utils';
 
-const KEY_PREFIX = '_robo_';
+const PROJECT_ID = process.env.VUE_APP_PROJECT_ID;
+const KEY_PREFIX = `_apollo_inspection_${PROJECT_ID}_`;
 const TOKEN_KEY = `${KEY_PREFIX}token`;
 const USERNAME_KEY = `${KEY_PREFIX}username`;
 
 const state: RootState = {
     token: window.localStorage.getItem(TOKEN_KEY) || '',
     username: window.localStorage.getItem(USERNAME_KEY) || '',
-    role: ''
+    role: '',
+    ws: null
 };
 
 const getters: RootGetters = {
@@ -47,52 +52,78 @@ const getters: RootGetters = {
 
 const mutations: RootMutations = {
     // 更新用户信息
-    [ROOT_UPDATE_USER_INFO_MUTATION](state, {token, username}) {
+    [LOGIN_MUTATION](state, {token, username}) {
         state.token = token || state.token;
         state.username = username || state.username;
         window.localStorage.setItem(TOKEN_KEY, state.token);
         window.localStorage.setItem(USERNAME_KEY, state.username);
     },
     // 更新权限信息
-    [ROOT_UPDATE_USER_ROLE_MUTATION](state, role) {
+    [USER_ROLE_MUTATION](state, role) {
         state.role = role ? role.toLocaleLowerCase() : state.role;
     },
     // 退出登录
-    [ROOT_LOGOUT_MUTATION](state) {
+    [LOGOUT_MUTATION](state) {
         state.token = '';
         state.username = '';
         state.role = '';
         window.localStorage.removeItem(TOKEN_KEY);
         window.localStorage.removeItem(USERNAME_KEY);
+    },
+    // 保存 Websocket 实例
+    [WS_MUTATION](state, ws) {
+        state.ws = ws;
     }
 };
 
 const actions: RootActions = {
     // 登录
-    async [ROOT_LOGIN_ACTION]({commit}) {
-        const {code, data} = await request.post<RootLoginResponse>(ROOT_LOGIN_URL);
+    async [LOGIN_ACTION]({commit}) {
+        const {code, data} = await request.post<RootLoginResponse>(LOGIN_URL);
         if (code === 0 && data) {
             const {token = '', username = ''} = data;
-            commit(ROOT_UPDATE_USER_INFO_MUTATION, {token, username});
+            commit(LOGIN_MUTATION, {token, username});
         }
         return code === 0;
     },
     // 获取用户权限
-    async [ROOT_GET_USER_ROLE_ACTION]({commit}, username) {
-        const {code, data} = await request.post<{role: string}>(ROOT_GET_USER_ROLE_URL, {username});
+    async [USER_ROLE_ACTION]({commit}, username) {
+        const {code, data} = await request.post<{role: string}>(USER_ROLE_URL, {username});
         if (code === 0 && data) {
-            commit(ROOT_UPDATE_USER_ROLE_MUTATION, data.role);
+            commit(USER_ROLE_MUTATION, data.role);
         } else {
-            commit(ROOT_UPDATE_USER_ROLE_MUTATION, 'user');
-        }
-    },
-    // 退出登录
-    async [ROOT_LOGOUT_ACTION]({commit}) {
-        const {code} = await request.post<{}>(ROOT_LOGOUT_URL);
-        if (code === 0) {
-            commit(ROOT_LOGOUT_MUTATION);
+            commit(USER_ROLE_MUTATION, 'user');
         }
         return code === 0;
+    },
+    // 退出登录
+    async [LOGOUT_ACTION]({commit}) {
+        const {code} = await request.post<{}>(LOGOUT_URL);
+        if (code === 0) {
+            commit(LOGOUT_MUTATION);
+        }
+        return code === 0;
+    },
+    // 连接 Websocket
+    async [WS_CONNECT_ACTION]({commit, state}) {
+        if (!state.ws) {
+            const ws = await wsConnectHelper(WS_URLS.default);
+            commit(WS_MUTATION, ws);
+        }
+    },
+    // 断开 Websocket
+    async [WS_DISCONNECT_ACTION]({commit, state}) {
+        if (state.ws && typeof state.ws.close === 'function') {
+            state.ws.close();
+            commit(WS_MUTATION, null);
+        }
+    },
+    // 断开 Websocket
+    async [WS_DISCONNECT_ACTION]({commit, state}) {
+        if (state.ws && typeof state.ws.close === 'function') {
+            state.ws.close();
+            commit(WS_MUTATION, null);
+        }
     }
 };
 

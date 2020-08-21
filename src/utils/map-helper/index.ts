@@ -1,16 +1,17 @@
 /**
  * 百度地图相关的辅助方法
  * 关于坐标系转换的说明：所有涉及到坐标点的辅助方法，如果传入的形式为二维数组（[longitude, latitude]）认为是 WGS84 坐标系，会进行坐标转换
- * 如果传入的是 BMap.Point 格式的坐标点，则默认为 bd09 坐标系，不会进行坐标转换
+ * 如果传入的是 RMap.Point 格式的坐标点，则默认为 bd09 坐标系，不会进行坐标转换
  * 所有坐标二维数组，都需要经度在前，纬度在后
  */
+
 import {
-    Point,
     InitMap,
     AddMapMarker,
     AddMapLabel,
     AddMapLines,
     AddMapLine,
+    AddCommonLabel,
     ConvertPoint,
     GetMapLocation,
     SetMapCenter,
@@ -23,18 +24,24 @@ import {
     GetLabelOffsetYByHeadingAngle,
     ChangeLabelContent
 } from './types';
-import {styleJson} from '@/utils/map-helper/custorm-style';
 
-import {DEFAULT_MAP_ZOOM, DEFAULT_MAP_INFO} from '@/config';
 import {Position} from 'gcoord/dist/types/geojson';
 import {transform, WGS84, BD09} from 'gcoord';
+
 import {getWithByScreen, mathRound} from '@/utils';
+import {loadingCounter} from '@/utils/network-helper/loading-counter';
+
+import {CURRENT_PROJECT_INFO, MapApi} from '@/config';
+import {styleJson} from '@/utils/map-helper/custorm-style';
+
+export const RMap = MapApi;
+export const isMapGl = !(window as any).BMap;
 
 // 判断是不是一个 bd09 的百度地图坐标点
-const _isBMapPoint = (point: any): boolean => !!point && point instanceof BMap.Point;
+const _isBMapPoint = (point: any): boolean => !!point && point.lat && point.lng;
 
 // 地址查询：http://lbsyun.baidu.com/jsdemo.htm#i7_2
-export const geoCoder = new BMap.Geocoder();
+export const geoCoder = new RMap.Geocoder();
 
 // 转换坐标点
 // 约定：传入的是数组格式，那么认为传入的是 WGS84 坐标，会转换为 bd09 的坐标点
@@ -45,14 +52,12 @@ export const convertPoint: ConvertPoint = (point, from = 1, to = 5) => {
             1: WGS84,
             5: BD09
         };
-        return new Promise((resolve) => {
-            try {
-                const result = transform([point[0], point[1]], HASH[from], HASH[to]);
-                resolve(new BMap.Point((result as Position)[0], (result as Position)[1]));
-            } catch (e) {
-                console.error(e, '坐标转换失败');
-            }
-        });
+        try {
+            const result = transform([point[0], point[1]], HASH[from], HASH[to]);
+            return new RMap.Point((result as Position)[0], (result as Position)[1]);
+        } catch (e) {
+            throw new Error('坐标转换失败');
+        }
     }
     return point;
 };
@@ -64,17 +69,19 @@ export const initMap: InitMap = async (id, options) => {
         throw new Error(`地图容器节点不存在！(id: ${id})`);
     }
 
+    loadingCounter.addLoading();
+
     const _options = options ? options : {};
 
     // 转换中心坐标
-    const bdCenterPoint = await convertPoint(_options.centerPoint || DEFAULT_MAP_INFO.defaultCenter);
+    const bdCenterPoint = convertPoint(_options.centerPoint || CURRENT_PROJECT_INFO.mapCenter);
 
-    const zoom = _options.zoom ? _options.zoom : DEFAULT_MAP_ZOOM;
+    const zoom = _options.zoom ? _options.zoom : CURRENT_PROJECT_INFO.mapZoom;
     const minZoom = _options.minZoom ? _options.minZoom : 5;
-    const maxZoom = _options.maxZoom ? _options.maxZoom : 19;
+    const maxZoom = _options.maxZoom ? _options.maxZoom : 21;
 
-    const enableScrollWheelZoom = _options.enableScrollWheelZoom === true;
-    const enableMapClick = !(_options.enableMapClick === false);
+    const enableScrollWheelZoom = !(_options.enableScrollWheelZoom === true);
+    const enableMapClick = _options.enableMapClick === false;
     const disableDragging = _options.disableDragging ? _options.disableDragging : false;
     const disableDoubleClickZoom = _options.disableDoubleClickZoom === true;
 
@@ -87,10 +94,10 @@ export const initMap: InitMap = async (id, options) => {
     const mapOptions = {minZoom, maxZoom, enableMapClick, enableIndoorLayer};
 
     return new Promise((resolve) => {
-        const map = new BMap.Map(id, mapOptions);
+        const map = new RMap.Map(id, mapOptions);
         map.centerAndZoom(bdCenterPoint, zoom);
 
-        // 个性化地图样式
+        // 个性化地图样式，未使用 ID 加载，因为使用 ID 时，在重复利用地图实例时会有闪烁的问题
         if (customStyle) {
             map.setMapStyleV2({styleJson});
         }
@@ -112,35 +119,51 @@ export const initMap: InitMap = async (id, options) => {
         }
 
         if (customStyle) {
-            // 监听 mapStyle 请求完成时间，一个内部 API
-            map.addEventListener('initindoorlayer', async () => {
-                resolve(map);
-            });
+            if (isMapGl) {
+                // 添加延时，防止加载 marker 阻塞个性化地图的加载
+                setTimeout(() => {
+                    resolve(map);
+                    loadingCounter.subLoading();
+                }, 500);
+            } else {
+                // 防止 initindoorlayer 事件失效，做了一个超时处理
+                let timer = setTimeout(() => {
+                    console.error('initindoorlayer 失效');
+                    resolve(map);
+                    loadingCounter.subLoading();
+                }, 5000);
+
+                // 监听 mapStyle 请求完成，一个内部 API
+                map.addEventListener('initindoorlayer', () => {
+                    resolve(map);
+                    loadingCounter.subLoading();
+                    clearTimeout(timer);
+                });
+            }
         } else {
             resolve(map);
+            loadingCounter.subLoading();
         }
     });
 };
 
 // 设定中心
-export const setMapCenter: SetMapCenter = async (map, point) => {
-    let pt = await convertPoint(point);
-    map.setCenter(pt);
-    return map;
+export const setMapCenter: SetMapCenter = (map, point) => {
+    map.setCenter(convertPoint(point));
 };
 
 // 根据传入的点设置地图视野
-export const setMapViewport: SetMapViewport = async (map, points, options) => {
+export const setMapViewport: SetMapViewport = (map, points, options) => {
     const needScaled = !(options && options.needScaled === false);
 
     // 处理坐标点
-    let convertPoints: Point[] = [];
+    let convertPoints: TypeRPoint[] = [];
     for (const point of points) {
         const isValidPoint = (Array.isArray(point) && point.length > 1) || _isBMapPoint(point);
         if (!isValidPoint) {
             continue;
         }
-        convertPoints.push(await convertPoint(point));
+        convertPoints.push(convertPoint(point));
     }
 
     const margins =
@@ -153,32 +176,31 @@ export const setMapViewport: SetMapViewport = async (map, points, options) => {
         delay: 0
     };
 
-    return new Promise(async (resolve) => {
-        map.setViewport(convertPoints, opt);
-        resolve(map);
-    });
+    map.setViewport(convertPoints, opt);
 };
 
-// 重新设定地图中心
-export const resetMap: ResetMap = async (map, centerPoint, zoom) => {
-    // 转换中心坐标
-    const pt = centerPoint ? centerPoint : DEFAULT_MAP_INFO.defaultCenter;
-    const bdCenterPoint = await convertPoint(pt);
-    const zoomLevel = zoom || DEFAULT_MAP_ZOOM;
-    map.centerAndZoom(bdCenterPoint, zoomLevel);
-    return map;
+// 重新设定地图中心（默认禁止动画，防止地图显示/隐藏切换时因为动画导致重置无法生效）
+export const resetMap: ResetMap = (map, centerPoint, zoom, noAnimation = true) => {
+    const pt = centerPoint ? centerPoint : CURRENT_PROJECT_INFO.mapCenter;
+    const zoomLevel = zoom || CURRENT_PROJECT_INFO.mapZoom;
+
+    map.setCenter(pt, {noAnimation});
+    map.setZoom(zoomLevel, {noAnimation});
 };
 
 // 绘制单条线路
-export const addMapLine: AddMapLine = async (map, line, options) => {
-    const DEFAULT_OPTIONS = {
-        strokeColor: '#47dcf3',
-        strokeWeight: getWithByScreen(4),
-        strokeOpacity: 1
-    };
-
+export const addMapLine: AddMapLine = (map, line, options) => {
     // 默认缩放
     const needScaled = !(options && options.needScaled === false);
+
+    // 线宽
+    const strokeWeight = options && options.strokeWeight ? options.strokeWeight : 4;
+
+    const DEFAULT_OPTIONS = {
+        strokeColor: '#47dcf3',
+        strokeWeight: needScaled ? getWithByScreen(strokeWeight) : strokeWeight,
+        strokeOpacity: 1
+    };
 
     // 处理坐标点
     let convertPoints = [];
@@ -187,46 +209,47 @@ export const addMapLine: AddMapLine = async (map, line, options) => {
         if (!isValidPoint) {
             continue;
         }
-        convertPoints.push(await convertPoint(point));
+        convertPoints.push(convertPoint(point));
     }
 
     // 描线
-    const polyline = new BMap.Polyline(convertPoints, Object.assign({}, DEFAULT_OPTIONS, options));
+    const polyline = new RMap.Polyline(convertPoints, Object.assign({}, DEFAULT_OPTIONS, options));
     map.addOverlay(polyline);
 
     return polyline;
 };
 
 // 绘制多条线路
-export const addMapLines: AddMapLines = async (map, lines, options) => {
-    const addPromises = (lines as any[]).map((line) => addMapLine(map, line, options));
-    return await Promise.all(addPromises);
+export const addMapLines: AddMapLines = (map, lines, options) => {
+    return (lines as any[][]).map((line) => addMapLine(map, line, options));
 };
 
 // 添加图标 marker
-export const addMapMarker: AddMapMarker = async (map, point, icon, options) => {
+export const addMapMarker: AddMapMarker = (point, icon, options) => {
     // Icon 尺寸
     const needScaled = !(options && options.needScaled === false);
     const scaledSize = icon.size.map((v) => (needScaled ? getWithByScreen(v) : v));
-    const sizeInMap = new BMap.Size(scaledSize[0], scaledSize[1]);
+    const sizeInMap = new RMap.Size(scaledSize[0], scaledSize[1]);
 
-    // 处理坐标点
-    const pt = await convertPoint(point);
+    const mapIcon = new RMap.Icon(icon.src, sizeInMap);
 
-    const mapIcon = new BMap.Icon(icon.src, sizeInMap);
+    if (icon.anchor != undefined) {
+        const scaledAnchor = icon.anchor.map((v) => (needScaled ? getWithByScreen(v) : v));
+        mapIcon.setAnchor(new RMap.Size(scaledAnchor[0], scaledAnchor[1]));
+    }
+
     mapIcon.setImageSize(sizeInMap);
 
-    let marker = new BMap.Marker(pt, {icon: mapIcon});
+    let marker = new RMap.Marker(convertPoint(point), {icon: mapIcon});
 
-    if (options && options.iconOffset) {
-        marker.setOffset(options.iconOffset);
+    if (options && options.labelOffset) {
+        const scaledLabelOffset = options.labelOffset.map((v) => (needScaled ? getWithByScreen(v) : v));
+        marker.setOffset(new RMap.Size(scaledLabelOffset[0], scaledLabelOffset[1]));
     }
 
-    if (options && options.iconRotation) {
-        marker.setRotation(options.iconRotation);
+    if (options && options.rotation != undefined) {
+        marker.setRotation(options.rotation);
     }
-
-    map.addOverlay(marker);
 
     if (options && options.needAnimation) {
         // 添加水波纹动画
@@ -250,19 +273,15 @@ export const addMapMarker: AddMapMarker = async (map, point, icon, options) => {
 
 // 为 marker 添加水波纹动画
 export const addMarkerAnimation: AddMarkerAnimation = (marker, options) => {
-    const size = options && options.size ? options.size : 50;
     const infinite = !!(options && options.infinite === true);
-    const scale = options && options.size ? options.size : 1;
 
     const content =
-        `<div class="water-animation-in-map ${
-            infinite ? 'water-animation-in-map-infinite' : ''
-        }" style="width: ${size}px; height: ${size}px; transform: scale(${scale})">` +
+        `<div class="water-animation-in-map ${infinite ? 'water-animation-in-map-infinite' : ''}">` +
         '  <div class="water-animation1"></div>' +
         '  <div class="water-animation2"></div>' +
         '  <div class="water-animation3"></div>' +
         '</div>';
-    const label = new BMap.Label(content);
+    const label = new RMap.Label(content);
     label.setStyle({
         position: 'relative',
         padding: 0,
@@ -285,27 +304,33 @@ export const changeMarkerIcon: ChangeMarkerIcon = (marker, options) => {
     // Icon 尺寸
     const needScaled = !(options && options.needScaled === false);
     const scaledSize = iconSize.map((v) => (needScaled ? getWithByScreen(v) : v));
-    const sizeInMap = new BMap.Size(scaledSize[0], scaledSize[1]);
+    const sizeInMap = new RMap.Size(scaledSize[0], scaledSize[1]);
 
     if (targetIcon) {
         // 设置 icon 图片
         targetIcon.setImageUrl(icon);
         // 设置 icon 图片尺寸
-        targetIcon.setImageSize(new BMap.Size(...iconSize));
+        targetIcon.setImageSize(sizeInMap);
         // 恢复 icon 尺寸
-        targetIcon.setSize(new BMap.Size(...iconSize));
-        // 恢复 icon 偏移量
-        targetIcon.setAnchor(new BMap.Size(iconSize[0] / 2, iconSize[1] / 2));
+        targetIcon.setSize(sizeInMap);
+        // 设置 icon 偏移量
+        if (options && options.anchor) {
+            const scaledAnchorSize = options.anchor.map((v) => (needScaled ? getWithByScreen(v) : v));
+            const anchorSizeInMap = new RMap.Size(scaledAnchorSize[0], scaledAnchorSize[1]);
+            targetIcon.setAnchor(anchorSizeInMap);
+        }
         // 设置 icon
         marker.setIcon(targetIcon);
+
         // 如果 marker 设置了动画效果，那么更改图标时需要清除
         if (withAnimation) {
             marker.getLabel().setStyle({display: 'none'});
         }
     }
 
-    // 获取当前 旋转角度
+    // 获取当前旋转角度
     const targetRotation = marker.getRotation();
+
     if (targetRotation && targetRotation > 0) {
         // 设置旋转角度
         marker.setRotation(targetRotation);
@@ -318,8 +343,36 @@ export const changeMarkerIcon: ChangeMarkerIcon = (marker, options) => {
     return marker;
 };
 
+export const addCommonLabel: AddCommonLabel = (target, content, point, options) => {
+    const needScaled = !(options && options.needScaled === false);
+    const label = new RMap.Label(content);
+
+    // label 的参数
+    let opts: any = {};
+
+    // 如果是直接添加 label 的话需要指定位置，如果是为 maker 添加 label 则不需要
+    if (target instanceof RMap.Map && point) {
+        // 文本标注所在的地理位置
+        opts.position = convertPoint(point);
+    }
+
+    // label 外围样式，内部样式通过上面的节点类在自行定义
+    const DEFAULT_STYLE = {padding: 0, border: 'none', background: 'none'};
+    const labelStyle =
+        options && options.labelStyle ? Object.assign({}, DEFAULT_STYLE, options.labelStyle) : DEFAULT_STYLE;
+    label.setStyle(labelStyle);
+
+    if (target instanceof RMap.Map) {
+        target.addOverlay(label);
+    } else if (target instanceof RMap.Marker) {
+        target.setLabel(label);
+    }
+
+    return label;
+};
+
 // 添加文本框
-export const addMapLabel: AddMapLabel = async (target, text, point, offset, className, options) => {
+export const addMapLabel: AddMapLabel = (target, text, point, offset, className, options) => {
     const needTriangle = options && options.needTriangle === true;
     const needScaled = !(options && options.needScaled === false);
     const scaledOffsetY = needScaled ? getWithByScreen(offset[1]) : offset[1];
@@ -327,13 +380,13 @@ export const addMapLabel: AddMapLabel = async (target, text, point, offset, clas
     // label 的参数
     let opts: any = {
         // 设置文本偏移量
-        offset: new BMap.Size(offset[0], scaledOffsetY)
+        offset: new RMap.Size(offset[0], scaledOffsetY)
     };
 
     // 如果是直接添加 label 的话需要指定位置，如果是为 maker 添加 label 则不需要
-    if (target instanceof BMap.Map) {
+    if (target instanceof RMap.Map) {
         // 文本标注所在的地理位置
-        opts.position = await convertPoint(point);
+        opts.position = convertPoint(point);
     }
 
     // label 的 html 节点
@@ -342,7 +395,7 @@ export const addMapLabel: AddMapLabel = async (target, text, point, offset, clas
         `<div class="map-label-text">${text}</div>` +
         `${needTriangle ? '<div class="map-label-triangle"></div>' : ''}` +
         '</div>';
-    const label = new BMap.Label(content, opts);
+    const label = new RMap.Label(content, opts);
 
     // label 外围样式，内部样式通过上面的节点类在自行定义
     const DEFAULT_LABEL_STYLE = {
@@ -356,9 +409,9 @@ export const addMapLabel: AddMapLabel = async (target, text, point, offset, clas
             : DEFAULT_LABEL_STYLE;
     label.setStyle(labelStyle);
 
-    if (target instanceof BMap.Map) {
+    if (target instanceof RMap.Map) {
         target.addOverlay(label);
-    } else {
+    } else if (target instanceof RMap.Marker) {
         target.setLabel(label);
     }
 
@@ -377,7 +430,7 @@ export const changeLabelContent: ChangeLabelContent = (label, content, offset, o
     }
 
     // 设置文本偏移量
-    label.setOffset(new BMap.Size(scaledOffsetX, scaledOffsetY));
+    label.setOffset(new RMap.Size(scaledOffsetX, scaledOffsetY));
 
     if (options && options.zIndex) {
         label.setZIndex(options.zIndex);
@@ -404,8 +457,8 @@ export const getMapBoundsPoint: GetMapBoundsPoint = (map) => {
     const bounds = map.getBounds();
     const SW = bounds.getSouthWest();
     const NE = bounds.getNorthEast();
-    const NW = new BMap.Point(SW.lng, NE.lat);
-    const SE = new BMap.Point(NE.lng, SW.lat);
+    const NW = new RMap.Point(SW.lng, NE.lat);
+    const SE = new RMap.Point(NE.lng, SW.lat);
     return [NW, NE, SE, SW];
 };
 
@@ -418,7 +471,7 @@ export const addMapMask: AddMapMask = (map, options) => {
         strokeOpacity: 1
     };
     const points = getMapBoundsPoint(map);
-    const mask = new BMap.Polygon(points, polyOptions);
+    const mask = new RMap.Polygon(points, polyOptions);
     map.addOverlay(mask);
     return mask;
 };

@@ -17,16 +17,18 @@ class LoadingCounter {
         if (this.getLoadings() <= 1) {
             this.loadingInstance = Loading.service({
                 lock: true,
-                background: 'rgba(0, 0, 0, 0.7)'
+                background: 'rgba(29, 33, 39, 0.7)'
             });
         }
     }
 
     subLoading() {
         this.count--;
-        if (this.getLoadings() === 0 && this.loadingInstance) {
-            this.loadingInstance.close();
-        }
+        setTimeout(() => {
+            if (this.getLoadings() === 0 && this.loadingInstance) {
+                this.loadingInstance.close();
+            }
+        }, 50);
     }
 
     clearLoading() {

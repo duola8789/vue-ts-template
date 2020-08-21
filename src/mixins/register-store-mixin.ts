@@ -14,10 +14,7 @@ export default function registerModuleMixinCreator(moduleName: StoreModuleName) 
         }
 
         destroyed() {
-            // 开发环境下不卸载 Store，因为热更新会首先执行新组件的
-            if (process.env.NODE_ENV !== 'development') {
-                registerStoreModule(moduleName, false);
-            }
+            registerStoreModule(moduleName, false);
         }
     }
     return RegisterModuleMixin;

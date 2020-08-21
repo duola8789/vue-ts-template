@@ -1,12 +1,7 @@
 // 请求拦截 - 处理 loading
 import {HintNetError, InterceptorRequestHandler, InterceptorResponseHandler} from '@/utils/network-helper/types';
 import {loadingCounter} from '@/utils/network-helper/loading-counter';
-import {
-    ROOT_LOGIN_URL,
-    ROOT_LOGOUT_MUTATION,
-    ROOT_LOGOUT_URL,
-    ROOT_UPDATE_USER_ROLE_MUTATION
-} from '@/store/root-store/store-types';
+import {LOGIN_URL, LOGOUT_MUTATION, LOGOUT_URL, USER_ROLE_MUTATION} from '@/store/root-store/store-types';
 import {Message} from 'element-ui';
 import store from '@/store';
 import router from '@/router';
@@ -36,7 +31,7 @@ const HTTP_CODE_HASH: {[propName: string]: string} = {
 const LOGOUT_CODE = [401, 403];
 
 // 不需要 token 的请求
-const FREE_TOKEN_REQUEST_URL = [ROOT_LOGIN_URL, ROOT_LOGOUT_URL];
+const FREE_TOKEN_REQUEST_URL = [LOGIN_URL, LOGOUT_URL];
 
 // NetError提示框个数
 let messageBoxCount = 0;
@@ -63,14 +58,14 @@ const hintNetError: HintNetError = (code = 999, msg) => {
 const exceptionLogout = (code: number) => {
     // 无 token 退出登录
     if (code === 401) {
-        store.commit(ROOT_LOGOUT_MUTATION);
+        store.commit(LOGOUT_MUTATION);
         router.push(CommonUrls.Login).catch(() => {});
         return;
     }
 
     // 无权限时返回首页
     if (code == 403) {
-        store.commit(ROOT_UPDATE_USER_ROLE_MUTATION, '');
+        store.commit(USER_ROLE_MUTATION, '');
         router.push(CommonUrls.Forbidden).catch(() => {});
     }
 };

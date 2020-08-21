@@ -6,12 +6,12 @@
 @function px2vw($px) {
     $width: 1920px;
 
-    @return round($px / $width * 10000) / 100 * 1vw;
+    @return round($px / $width * 100000) / 1000 * 1vw;
 }
 
 // px 转换为 vh，只能传入px
 @function px2vh($px) {
     $height: 1080px;
 
-    @return round($px / $height * 10000) / 100 * 1vh;
+    @return round($px / $height * 100000) / 1000 * 1vh;
 }

@@ -4,7 +4,8 @@
 // 隐藏百度地图 Logo 和 版权文字
 .anchorBL {
     &.BMap_cpyCtrl,
-    a {
+    a,
+    img {
         display: none;
     }
 }

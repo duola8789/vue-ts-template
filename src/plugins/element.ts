@@ -1,14 +1,13 @@
 import Vue from 'vue';
 import {
     Container,
-    Aside,
-    Main,
     Header,
-    Button,
+    Main,
+    Aside,
     Menu,
     MenuItem,
     Submenu,
-    MenuItemGroup,
+    Button,
     Input,
     Checkbox,
     Dialog,
@@ -18,28 +17,25 @@ import {
     Alert,
     Form,
     FormItem,
-    Popover,
     MessageBox
 } from 'element-ui';
 
 [
     Container,
-    Aside,
-    Main,
     Header,
-    Button,
+    Main,
+    Aside,
     Menu,
     MenuItem,
     Submenu,
-    MenuItemGroup,
+    Button,
     Input,
     Checkbox,
     Dialog,
     Loading,
     Alert,
     Form,
-    FormItem,
-    Popover
+    FormItem
 ].forEach((Comp) => Vue.use(Comp));
 
 Vue.prototype.$notify = Notification;

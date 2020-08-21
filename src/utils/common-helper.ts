@@ -160,12 +160,19 @@ export const registerStoreModule = (moduleName: StoreModuleName, isRegister: boo
         return;
     }
     if (isRegister) {
-        if (!store.hasModule(moduleName)) {
+        if (!store.hasModule(targetModule.path)) {
             store.registerModule(targetModule.path, targetModule.content);
         }
     } else {
-        if (store.hasModule(moduleName)) {
+        if (store.hasModule(targetModule.path)) {
             store.unregisterModule(targetModule.path);
         }
     }
 };
+
+// 处理车牌号，京a12345 → 京A·12345
+export const formatVehLicense = (str: string) => (str ? str.replace(/^((.{2})\W?)/, '$2·').toUpperCase() : str);
+
+// 处理速度、转向角、里程等数值的格式化
+export const formatSpeedNum = (number: any, digital = 0) =>
+    +number || +number === 0 ? Math.max(0, mathRound(+number, digital)) : 0;

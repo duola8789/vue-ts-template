@@ -1,12 +1,15 @@
 import {MutationTree, GetterTree, ActionTree, ActionContext} from 'vuex';
 import {
-    ROOT_UPDATE_USER_INFO_MUTATION,
-    ROOT_UPDATE_USER_ROLE_MUTATION,
-    ROOT_LOGIN_ACTION,
-    ROOT_LOGOUT_MUTATION,
-    ROOT_LOGOUT_ACTION,
-    ROOT_GET_USER_ROLE_ACTION
-} from '@/store/root-store/store-types';
+    LOGIN_MUTATION,
+    LOGIN_ACTION,
+    USER_ROLE_MUTATION,
+    USER_ROLE_ACTION,
+    LOGOUT_MUTATION,
+    LOGOUT_ACTION,
+    WS_MUTATION,
+    WS_CONNECT_ACTION,
+    WS_DISCONNECT_ACTION
+} from './store-types';
 
 export interface RootLoginResponse {
     token: string;
@@ -17,6 +20,7 @@ export interface RootState {
     token: string;
     username: string;
     role: string;
+    ws: WebSocket | null;
 }
 
 export interface RootGetters extends GetterTree<RootState, RootState> {
@@ -25,13 +29,16 @@ export interface RootGetters extends GetterTree<RootState, RootState> {
 }
 
 export interface RootMutations extends MutationTree<RootState> {
-    [ROOT_UPDATE_USER_INFO_MUTATION](state: RootState, payload: {token: string; username: string}): void;
-    [ROOT_UPDATE_USER_ROLE_MUTATION](state: RootState, role: string): void;
-    [ROOT_LOGOUT_MUTATION](state: RootState): void;
+    [LOGIN_MUTATION](state: RootState, payload: {token: string; username: string}): void;
+    [USER_ROLE_MUTATION](state: RootState, role: string): void;
+    [LOGOUT_MUTATION](state: RootState): void;
+    [WS_MUTATION](state: RootState, ws: WebSocket): void;
 }
 
 export interface RootActions extends ActionTree<RootState, RootState> {
-    [ROOT_LOGIN_ACTION](actionContext: ActionContext<RootState, RootState>): Promise<boolean>;
-    [ROOT_LOGOUT_ACTION](actionContext: ActionContext<RootState, RootState>): Promise<boolean>;
-    [ROOT_GET_USER_ROLE_ACTION](actionContext: ActionContext<RootState, RootState>, username: string): Promise<void>;
+    [LOGIN_ACTION](actionContext: ActionContext<RootState, RootState>): Promise<boolean>;
+    [LOGOUT_ACTION](actionContext: ActionContext<RootState, RootState>): Promise<boolean>;
+    [USER_ROLE_ACTION](actionContext: ActionContext<RootState, RootState>, username: string): Promise<boolean>;
+    [WS_CONNECT_ACTION](actionContext: ActionContext<RootState, RootState>): Promise<void>;
+    [WS_DISCONNECT_ACTION](actionContext: ActionContext<RootState, RootState>): Promise<void>;
 }

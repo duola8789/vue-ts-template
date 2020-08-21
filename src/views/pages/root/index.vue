@@ -26,7 +26,7 @@
 import {Component, Vue} from 'vue-property-decorator';
 import {State, Getter, Action} from 'vuex-class';
 import Menu from '@/views/pages/root/components/menu/index.vue';
-import {ROOT_LOGOUT_ACTION} from '@/store/root-store/store-types';
+import {LOGOUT_ACTION} from '@/store/root-store/store-types';
 import {CommonUrls} from '@/utils';
 
 @Component({components: {Menu}})
@@ -36,7 +36,7 @@ export default class App extends Vue {
 
     @Getter isAuthorized!: boolean;
 
-    @Action(ROOT_LOGOUT_ACTION) logout!: () => Promise<boolean>;
+    @Action(LOGOUT_ACTION) logout!: () => Promise<boolean>;
 
     isCollapse: boolean = false;
 

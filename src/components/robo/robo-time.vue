@@ -1,4 +1,3 @@
-<!-- 展示当前时间 -->
 <template>
     <div class="robo-time-container">
         <div class="robo-time">
@@ -64,24 +63,23 @@ export default class RoboTime extends Vue {
 
 <style scoped lang="scss">
 .robo-time-container {
+    width: 100%;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     height: inherit;
     line-height: inherit;
     font-size: inherit;
-    color: #9fbcff;
-    text-align: left;
+    color: #fff;
+    cursor: default;
+    font-family: inherit;
 
     .robo-time-top {
-        font-size: 0.12rem;
-        line-height: 1;
-        margin-bottom: 4px;
+        font-family: inherit;
     }
 
     .robo-time-bottom {
-        font-size: 0.14rem;
-        line-height: 1;
+        font-family: inherit;
     }
 }
 </style>

@@ -4,11 +4,7 @@
 import {CheckLogin, CheckPermission} from './types';
 import store from '@/store';
 import {Message} from 'element-ui';
-import {
-    ROOT_GET_USER_ROLE_ACTION,
-    ROOT_LOGOUT_MUTATION,
-    ROOT_UPDATE_USER_ROLE_MUTATION
-} from '@/store/root-store/store-types';
+import {USER_ROLE_ACTION, LOGOUT_MUTATION, USER_ROLE_MUTATION} from '@/store/root-store/store-types';
 
 /**
  * 非开发模式路由懒加载
@@ -50,7 +46,7 @@ export const checkLogin: CheckLogin = (toPath, fromPath, next) => {
                 Message.error('登录信息失效，请重新登录');
             }
             // 清除登陆信息
-            store.commit(ROOT_LOGOUT_MUTATION);
+            store.commit(LOGOUT_MUTATION);
             next(CommonUrls.Login);
             return false;
         }
@@ -68,10 +64,10 @@ export const checkPermission: CheckPermission = async (toPath, fromPath, next) =
     if (!role) {
         try {
             // 重新获取权限
-            await store.dispatch(ROOT_GET_USER_ROLE_ACTION);
+            await store.dispatch(USER_ROLE_ACTION);
         } catch (e) {
             // 重新获取权限失败，清除或重置权限信息
-            store.commit(ROOT_UPDATE_USER_ROLE_MUTATION, 'user');
+            store.commit(USER_ROLE_MUTATION, 'user');
         }
     }
     const isAuthorized = store.getters.isAuthorized;

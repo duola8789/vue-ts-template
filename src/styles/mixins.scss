@@ -47,3 +47,12 @@
     border-top-color: inherit;
     transform: translate(-50%, 100%);
 }
+
+// 针对 12px 的字体尺寸
+@mixin fontSize12() {
+    font-size: px2vw(12px);
+
+    @media screen and (max-width: 1920px) {
+        font-size: 12px;
+    }
+}

@@ -27,7 +27,7 @@
 <script lang="ts">
 import {Component, Vue, Ref} from 'vue-property-decorator';
 import {Action, State} from 'vuex-class';
-import {ROOT_GET_USER_ROLE_ACTION, ROOT_LOGIN_ACTION} from '@/store/root-store/store-types';
+import {USER_ROLE_ACTION, LOGIN_ACTION} from '@/store/root-store/store-types';
 import {ElForm} from 'element-ui/types/form';
 import {validateELForm, resetElFrom} from '@/utils';
 
@@ -35,8 +35,8 @@ import {validateELForm, resetElFrom} from '@/utils';
 export default class Login extends Vue {
     @State username!: string;
 
-    @Action(ROOT_GET_USER_ROLE_ACTION) getUserRole!: (username: string) => Promise<string>;
-    @Action(ROOT_LOGIN_ACTION) login!: (payload: {account: string; password: string}) => Promise<boolean>;
+    @Action(USER_ROLE_ACTION) getUserRole!: (username: string) => Promise<string>;
+    @Action(LOGIN_ACTION) login!: (payload: {account: string; password: string}) => Promise<boolean>;
 
     @Ref() readonly loginForm!: ElForm;
 

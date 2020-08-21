@@ -1,16 +1,19 @@
-// 更新用户信息
-export const ROOT_UPDATE_USER_INFO_MUTATION = 'ROOT_UPDATE_USER_INFO_MUTATION';
-export const ROOT_UPDATE_USER_ROLE_MUTATION = 'ROOT_UPDATE_USER_ROLE_MUTATION';
-
 // 登录
-export const ROOT_LOGIN_URL = '/user/login';
-export const ROOT_LOGIN_ACTION = 'ROOT_LOGIN_ACTION';
+export const LOGIN_URL = '/user/login';
+export const LOGIN_MUTATION = 'LOGIN_MUTATION';
+export const LOGIN_ACTION = 'LOGIN_ACTION';
 
 // 获取用户权限
-export const ROOT_GET_USER_ROLE_URL = '/user/role';
-export const ROOT_GET_USER_ROLE_ACTION = 'ROOT_GET_USER_ROLE_ACTION';
+export const USER_ROLE_URL = '/user/role';
+export const USER_ROLE_MUTATION = 'USER_ROLE_MUTATION';
+export const USER_ROLE_ACTION = 'USER_ROLE_ACTION';
 
 // 退出登录
-export const ROOT_LOGOUT_URL = '/user/logout';
-export const ROOT_LOGOUT_MUTATION = 'ROOT_LOGOUT_MUTATION';
-export const ROOT_LOGOUT_ACTION = 'ROOT_LOGOUT_ACTION';
+export const LOGOUT_URL = '/user/logout';
+export const LOGOUT_MUTATION = 'LOGOUT_MUTATION';
+export const LOGOUT_ACTION = 'LOGOUT_ACTION';
+
+// Websocket
+export const WS_MUTATION = 'WS_CLIENT_MUTATION';
+export const WS_CONNECT_ACTION = 'WS_CONNECT_ACTION';
+export const WS_DISCONNECT_ACTION = 'WS_DISCONNECT_ACTION';

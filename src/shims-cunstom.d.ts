@@ -27,3 +27,16 @@ declare module 'vue/types/vue' {
         $fullLoading(): ElLoadingComponent;
     }
 }
+
+// 添加全局属性
+declare global {
+    interface Window {
+        BMap: any;
+        BMapGL: any;
+    }
+
+    interface WsResponse<T> {
+        ext: {type: number; clear?: any};
+        data: T;
+    }
+}

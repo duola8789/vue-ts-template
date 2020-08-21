@@ -44,7 +44,7 @@ module.exports = {
         {
             'files': ['*.css', '*.less', '*.sass', '*.scss'],
             'options': {
-                'singleQuote': false
+                'singleQuote': true
             }
         },
     ]
