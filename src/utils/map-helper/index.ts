@@ -318,6 +318,8 @@ export const changeMarkerIcon: ChangeMarkerIcon = (marker, options) => {
             const scaledAnchorSize = options.anchor.map((v) => (needScaled ? getWithByScreen(v) : v));
             const anchorSizeInMap = new RMap.Size(scaledAnchorSize[0], scaledAnchorSize[1]);
             targetIcon.setAnchor(anchorSizeInMap);
+        } else {
+            targetIcon.setAnchor(new BMap.Size(iconSize[0] / 2, iconSize[1] / 2));
         }
         // 设置 icon
         marker.setIcon(targetIcon);
