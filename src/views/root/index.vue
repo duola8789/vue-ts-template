@@ -25,7 +25,7 @@
 <script lang="ts">
 import {Component, Vue} from 'vue-property-decorator';
 import {State, Getter, Action} from 'vuex-class';
-import Menu from '@/views/pages/root/components/menu/index.vue';
+import Menu from '@/views/root/components/menu/index.vue';
 import {LOGOUT_ACTION} from '@/store/root-store/store-types';
 import {CommonUrls} from '@/utils';
 
