@@ -7,18 +7,18 @@ Default:
 Profiles:
     - profile:
       name: production
-      env: cmc_standard
+      env: DECK_CENTOS6U3_K3
       command: sh ./scripts/build.sh
       release: true
 
     - profile:
       name: staging
-      env: cmc_standard
+      env: DECK_CENTOS6U3_K3
       command: sh ./scripts/build.sh staging
       release: true
 
     - profile:
       name: testing
-      env: cmc_standard
+      env: DECK_CENTOS6U3_K3
       command: sh ./scripts/build.sh testing
       release: true
