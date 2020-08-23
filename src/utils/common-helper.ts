@@ -5,7 +5,7 @@ import {differenceInSecondsHelper} from '@/utils';
 import {debounce, cloneDeep} from 'lodash-es';
 import store from '@/store';
 import {StoreModuleName} from '@/store/modules/types';
-import storeModules from '@/store/modules';
+import {storeModules} from '@/store/modules';
 
 // 防抖
 export const debounceHelper = (func: () => any, wait = 1000, options = {}) => {

@@ -8,6 +8,7 @@ export type StoreModule<T> = {
     name: StoreModuleName;
     path: string;
     content: Module<T, RootState>;
+    dynamic?: boolean;
 };
 
 export interface StoreModules {

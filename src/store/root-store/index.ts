@@ -117,13 +117,6 @@ const actions: RootActions = {
             state.ws.close();
             commit(WS_MUTATION, null);
         }
-    },
-    // 断开 Websocket
-    async [WS_DISCONNECT_ACTION]({commit, state}) {
-        if (state.ws && typeof state.ws.close === 'function') {
-            state.ws.close();
-            commit(WS_MUTATION, null);
-        }
     }
 };
 

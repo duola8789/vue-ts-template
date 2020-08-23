@@ -9,7 +9,7 @@ import {
 
 // 创建 Axios 实例
 const axiosInstance: Instance = axios.create({
-    timeout: 10000,
+    timeout: 15000,
     baseURL: process.env.VUE_APP_BASE_URL
 });
 

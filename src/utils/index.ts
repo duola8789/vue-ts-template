@@ -5,5 +5,4 @@ export * from '@/utils/router-helper';
 export * from '@/utils/element-helper';
 export * from '@/utils/map-helper';
 export * from '@/utils/echarts';
-export * from '@/utils/map-helper';
 export * from '@/utils/ws-helper/index';

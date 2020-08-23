@@ -9,7 +9,7 @@
 import {Component, Vue} from 'vue-property-decorator';
 
 import {namespace} from 'vuex-class';
-import storeModules from '@/store/modules';
+import {storeModules} from '@/store/modules';
 
 const exampleStore = namespace(storeModules.example.path);
 
