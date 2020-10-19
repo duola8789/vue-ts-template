@@ -31,7 +31,7 @@ export default class RoboMapLocateBtn extends Vue {
 .robo-map-locate-btn {
     width: px2vw(40px);
     height: px2vw(40px);
-    background: url('~@/assets/icons/bd-map/icon-map-locate.png') no-repeat center center;
+    background: url('./icons/bd-map/icon-map-locate.png') no-repeat center center;
     background-size: cover;
     cursor: pointer;
     user-select: none;
