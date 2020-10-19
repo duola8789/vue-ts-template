@@ -12,3 +12,10 @@ export type ProjectInfo = {
         mapZoom: number;
     };
 };
+
+export type TypeUserPermissionCodes = 0 | 1 | 2;
+export type TypeUserPermissionKeys = 'forbidden' | 'user' | 'admin';
+
+export type TypeUserPermissionHash = {
+    [keys in TypeUserPermissionKeys]: TypeUserPermissionCodes;
+};

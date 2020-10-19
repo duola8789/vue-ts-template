@@ -4,8 +4,7 @@
 import {Message} from 'element-ui';
 
 import store from '@/store';
-import {parseJSON, stringifyParams} from '@/utils';
-import {WsConnectHelper} from './types';
+import {parseJSON, stringifyParams} from '@/utils/index';
 import {WS_CONNECT_ACTION} from '@/store/root-store/store-types';
 import {CURRENT_PROJECT_INFO} from '@/config';
 
@@ -61,7 +60,7 @@ const hintWsError = () => {
 };
 
 // 创建 WS 连接
-export const wsConnectHelper: WsConnectHelper = (url, params) => {
+export const wsConnectHelper = (url: string, params?: {[keys: string]: any}): Promise<WebSocket | null> => {
     return new Promise((resolve) => {
         const fullUrl = _getWSUrl(url, params);
         const ws = new WebSocket(fullUrl);
@@ -72,6 +71,7 @@ export const wsConnectHelper: WsConnectHelper = (url, params) => {
 
         ws.onerror = () => {
             hintWsError();
+            resolve(null);
         };
     });
 };

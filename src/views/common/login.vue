@@ -27,23 +27,20 @@
 <script lang="ts">
 import {Component, Vue, Ref} from 'vue-property-decorator';
 import {Action, State} from 'vuex-class';
-import {USER_ROLE_ACTION, LOGIN_ACTION} from '@/store/root-store/store-types';
+import {USER_PERMISSION_ACTION, LOGIN_ACTION} from '@/store/root-store/store-types';
 import {ElForm} from 'element-ui/types/form';
 import {validateELForm, resetElFrom} from '@/utils';
 
 @Component
 export default class Login extends Vue {
-    @State username!: string;
+    @State userName!: string;
 
-    @Action(USER_ROLE_ACTION) getUserRole!: (username: string) => Promise<string>;
+    @Action(USER_PERMISSION_ACTION) getUserPermission!: (userName: string) => Promise<string>;
     @Action(LOGIN_ACTION) login!: (payload: {account: string; password: string}) => Promise<boolean>;
 
     @Ref() readonly loginForm!: ElForm;
 
-    loginInfo = {
-        account: '',
-        password: ''
-    };
+    loginInfo = {account: '', password: ''};
 
     formRules = {
         account: [{required: true, message: '请输入用户名', trigger: 'blur'}],
@@ -55,7 +52,7 @@ export default class Login extends Vue {
         if (isFormValid) {
             const isLoginSuccess = await this.login({...this.loginInfo});
             if (isLoginSuccess) {
-                await this.getUserRole(this.username);
+                await this.getUserPermission(this.userName);
                 this.$message({
                     type: 'success',
                     message: '登录成功',

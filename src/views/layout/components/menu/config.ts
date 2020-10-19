@@ -1,4 +1,4 @@
-import {MenuConfig} from '@/views/root/components/menu/types';
+import {MenuConfig} from './types';
 
 const menuConfigs: MenuConfig[] = [
     {

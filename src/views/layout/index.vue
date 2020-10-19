@@ -1,18 +1,12 @@
 <template>
-    <div class="container">
+    <div class="root-container">
         <el-header class="head" height="60px">
-            <el-button
-                v-if="isAuthorized"
-                :icon="collapseButtonIcon"
-                class="collapse-button"
-                circle
-                @click="collapseMenu"
-            />
-            <h1 class="title">{{ username }} -- {{ role }}</h1>
+            <el-button :icon="collapseButtonIcon" class="collapse-button" circle @click="collapseMenu" />
+            <h1 class="title">{{ userName }} -- {{ permission }}</h1>
             <el-button icon="el-icon-user" class="logout-button" circle @click="logoutHandler" />
         </el-header>
         <el-container>
-            <el-aside v-if="isAuthorized" class="aside" width="auto">
+            <el-aside class="aside" width="auto">
                 <Menu :is-collapse="isCollapse" :class="menuClass" class="menu" />
             </el-aside>
             <el-main class="main">
@@ -25,14 +19,14 @@
 <script lang="ts">
 import {Component, Vue} from 'vue-property-decorator';
 import {State, Getter, Action} from 'vuex-class';
-import Menu from '@/views/root/components/menu/index.vue';
+import Menu from './components/menu/index.vue';
 import {LOGOUT_ACTION} from '@/store/root-store/store-types';
 import {CommonUrls} from '@/utils';
 
 @Component({components: {Menu}})
-export default class App extends Vue {
-    @State role!: string;
-    @State username!: string;
+export default class Root extends Vue {
+    @State userName!: string;
+    @State permission!: string;
 
     @Getter isAuthorized!: boolean;
 
@@ -68,7 +62,7 @@ export default class App extends Vue {
 </script>
 
 <style scoped lang="scss">
-.container {
+.root-container {
     display: flex;
     flex-direction: column;
     height: 100%;

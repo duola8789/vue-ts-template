@@ -1,11 +1,12 @@
 // 请求拦截 - 处理 loading
 import {HintNetError, InterceptorRequestHandler, InterceptorResponseHandler} from '@/utils/network-helper/types';
 import {loadingCounter} from '@/utils/network-helper/loading-counter';
-import {LOGIN_URL, LOGOUT_MUTATION, LOGOUT_URL, USER_ROLE_MUTATION} from '@/store/root-store/store-types';
+import {LOGIN_URL, LOGOUT_MUTATION, LOGOUT_URL, USER_PERMISSION_MUTATION} from '@/store/root-store/store-types';
 import {Message} from 'element-ui';
 import store from '@/store';
 import router from '@/router';
 import {CommonUrls} from '@/utils';
+import {CURRENT_PROJECT_INFO, USER_PERMISSION_HASH} from '@/config';
 
 // HTTP CODE 对照码
 // MSDN: https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status
@@ -33,13 +34,8 @@ const LOGOUT_CODE = [401, 403];
 // 不需要 token 的请求
 const FREE_TOKEN_REQUEST_URL = [LOGIN_URL, LOGOUT_URL];
 
-// NetError提示框个数
+// 网络错误提示, 同一时间只提示一次
 let messageBoxCount = 0;
-/**
- * 网络错误提示
- * @param code 错误码
- * @param msg 自定义的提示语
- */
 const hintNetError: HintNetError = (code = 999, msg) => {
     if (messageBoxCount === 0) {
         messageBoxCount += 1;
@@ -65,7 +61,7 @@ const exceptionLogout = (code: number) => {
 
     // 无权限时返回首页
     if (code == 403) {
-        store.commit(USER_ROLE_MUTATION, '');
+        store.commit(USER_PERMISSION_MUTATION, USER_PERMISSION_HASH.forbidden);
         router.push(CommonUrls.Forbidden).catch(() => {});
     }
 };
@@ -94,6 +90,14 @@ export const tokenRequestHandler: InterceptorRequestHandler = {
         const isFreeTokenRequest = FREE_TOKEN_REQUEST_URL.includes(config.url as string);
         if (!isFreeTokenRequest && token) {
             config.headers.token = token;
+        }
+        if (config.method && CURRENT_PROJECT_INFO && CURRENT_PROJECT_INFO.projectId) {
+            config.params = {projectId: CURRENT_PROJECT_INFO.projectId, ...config.params};
+
+            // 非 get 请求，请求 body 中也添加 projectId
+            if (['post', 'put', 'delete', 'patch'].includes(config.method)) {
+                config.data = {projectId: CURRENT_PROJECT_INFO.projectId, ...config.data};
+            }
         }
         return config;
     },
@@ -148,12 +152,11 @@ export const commonErrorHandler: InterceptorResponseHandler = {
         // 超时提示
         if (message && message.includes('timeout')) {
             hintNetError(1001);
+        } else if (LOGOUT_CODE.includes(+response.status)) {
+            // 登录状态异常
+            exceptionLogout(+response.status);
         } else {
             hintNetError(+response.status);
-        }
-        // 登录状态异常
-        if (LOGOUT_CODE.includes(+response.status)) {
-            exceptionLogout(+response.status);
         }
         return Promise.reject(response);
     }

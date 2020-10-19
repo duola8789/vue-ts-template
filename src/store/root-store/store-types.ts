@@ -4,9 +4,9 @@ export const LOGIN_MUTATION = 'LOGIN_MUTATION';
 export const LOGIN_ACTION = 'LOGIN_ACTION';
 
 // 获取用户权限
-export const USER_ROLE_URL = '/user/role';
-export const USER_ROLE_MUTATION = 'USER_ROLE_MUTATION';
-export const USER_ROLE_ACTION = 'USER_ROLE_ACTION';
+export const USER_PERMISSION_URL = '/user/role';
+export const USER_PERMISSION_MUTATION = 'USER_PERMISSION_MUTATION';
+export const USER_PERMISSION_ACTION = 'USER_PERMISSION_ACTION';
 
 // 退出登录
 export const LOGOUT_URL = '/user/logout';

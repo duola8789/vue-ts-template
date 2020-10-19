@@ -14,9 +14,9 @@ import {
     LOGIN_MUTATION,
     LOGIN_ACTION,
     LOGIN_URL,
-    USER_ROLE_MUTATION,
-    USER_ROLE_ACTION,
-    USER_ROLE_URL,
+    USER_PERMISSION_MUTATION,
+    USER_PERMISSION_ACTION,
+    USER_PERMISSION_URL,
     LOGOUT_MUTATION,
     LOGOUT_ACTION,
     LOGOUT_URL,
@@ -26,47 +26,47 @@ import {
 } from './store-types';
 import {request, WS_URLS, wsConnectHelper} from '@/utils';
 
-const PROJECT_ID = process.env.VUE_APP_PROJECT_ID;
-const KEY_PREFIX = `_apollo_inspection_${PROJECT_ID}_`;
+import {USER_PERMISSION_HASH} from '@/config';
+
+const KEY_PREFIX = `_robotaxi_`;
 const TOKEN_KEY = `${KEY_PREFIX}token`;
-const USERNAME_KEY = `${KEY_PREFIX}username`;
+const USERNAME_KEY = `${KEY_PREFIX}user_name`;
 
 const state: RootState = {
     token: window.localStorage.getItem(TOKEN_KEY) || '',
-    username: window.localStorage.getItem(USERNAME_KEY) || '',
-    role: '',
+    userName: window.localStorage.getItem(USERNAME_KEY) || '',
+    permission: -1,
     ws: null
 };
 
 const getters: RootGetters = {
     isLogin: () => () => {
-        // 没有在前端处理 token 过期的情况，如果需要处理，需要使用封装的 getLocalStorageHelper 和 setLocalStorageHelper
         const token = window.localStorage.getItem(TOKEN_KEY);
         return !!token;
     },
     isAuthorized(state) {
-        // 此处验证登录状态的处理比较简单，仅仅区分了两种角色，如果是更细粒度的权限可以在全局状态中保存一个 URL 列表，在此进行比对
-        return !!(state.role && state.role === 'admin');
+        const visiblePermission: number[] = [USER_PERMISSION_HASH.admin, USER_PERMISSION_HASH.user];
+        return visiblePermission.includes(+state.permission);
     }
 };
 
 const mutations: RootMutations = {
     // 更新用户信息
-    [LOGIN_MUTATION](state, {token, username}) {
+    [LOGIN_MUTATION](state, {token, userName}) {
         state.token = token || state.token;
-        state.username = username || state.username;
+        state.userName = userName || state.userName;
         window.localStorage.setItem(TOKEN_KEY, state.token);
-        window.localStorage.setItem(USERNAME_KEY, state.username);
+        window.localStorage.setItem(USERNAME_KEY, state.userName);
     },
     // 更新权限信息
-    [USER_ROLE_MUTATION](state, role) {
-        state.role = role ? role.toLocaleLowerCase() : state.role;
+    [USER_PERMISSION_MUTATION](state, permission) {
+        state.permission = permission;
     },
     // 退出登录
     [LOGOUT_MUTATION](state) {
         state.token = '';
-        state.username = '';
-        state.role = '';
+        state.userName = '';
+        state.permission = -1;
         window.localStorage.removeItem(TOKEN_KEY);
         window.localStorage.removeItem(USERNAME_KEY);
     },
@@ -81,18 +81,18 @@ const actions: RootActions = {
     async [LOGIN_ACTION]({commit}) {
         const {code, data} = await request.post<RootLoginResponse>(LOGIN_URL);
         if (code === 0 && data) {
-            const {token = '', username = ''} = data;
-            commit(LOGIN_MUTATION, {token, username});
+            const {token = '', userName = ''} = data;
+            commit(LOGIN_MUTATION, {token, userName});
         }
         return code === 0;
     },
     // 获取用户权限
-    async [USER_ROLE_ACTION]({commit}, username) {
-        const {code, data} = await request.post<{role: string}>(USER_ROLE_URL, {username});
+    async [USER_PERMISSION_ACTION]({commit}, userName) {
+        const {code, data} = await request.post<{role: string}>(USER_PERMISSION_URL, {userName});
         if (code === 0 && data) {
-            commit(USER_ROLE_MUTATION, data.role);
+            commit(USER_PERMISSION_MUTATION, data.role);
         } else {
-            commit(USER_ROLE_MUTATION, 'user');
+            commit(USER_PERMISSION_MUTATION, 'user');
         }
         return code === 0;
     },

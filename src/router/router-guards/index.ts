@@ -7,7 +7,7 @@ import {checkLogin, checkPermission} from '@/utils';
 // 全局前置导航
 const beforeEachCallback: NavigationGuard = async (to, from, next) => {
     // 验证登录状态
-    const isLoginCheckPassed = checkLogin(to.path, from.path, next);
+    const isLoginCheckPassed = checkLogin();
     // 验证失败则退出
     if (!isLoginCheckPassed) {
         return;

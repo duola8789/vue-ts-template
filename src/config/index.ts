@@ -1,4 +1,4 @@
-import {ProjectInfo, ProjectIds} from './types';
+import {ProjectInfo, ProjectIds, TypeUserPermissionHash} from './types';
 
 export const PROJECT_ID: ProjectIds = process.env.VUE_APP_PROJECT_ID;
 
@@ -36,3 +36,9 @@ export const PROJECT_INFO_HASH: ProjectInfo = {
 
 // 当前项目
 export const CURRENT_PROJECT_INFO = PROJECT_INFO_HASH[PROJECT_ID] || PROJECT_INFO_HASH[1];
+
+export const USER_PERMISSION_HASH: TypeUserPermissionHash = {
+    forbidden: 0,
+    user: 1,
+    admin: 2
+};
