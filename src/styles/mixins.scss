@@ -56,3 +56,26 @@
         font-size: 12px;
     }
 }
+
+// 竖向分割线
+@mixin gutter-vertical {
+    font-size: 0;
+    text-align: center;
+    height: px2vw(64px);
+
+    &::before {
+        content: '';
+        display: inline-block;
+        width: 2px;
+        height: inherit;
+        background: #252931;
+    }
+
+    &::after {
+        content: '';
+        display: inline-block;
+        width: 2px;
+        height: inherit;
+        background: #40464f;
+    }
+}

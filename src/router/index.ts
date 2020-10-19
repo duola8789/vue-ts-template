@@ -15,7 +15,7 @@ const routes: RouteConfig[] = [
     },
     {
         path: CommonUrls.Root,
-        component: lazyLoadHelper('root/index'),
+        component: lazyLoadHelper('layout/index'),
         children: [
             ...exampleRoutes,
             {

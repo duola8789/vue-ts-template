@@ -543,6 +543,9 @@ var isMapGl = RMap === window.BMapGL;
 
         const text = clusterMarker.getText();
         clusterMarker.setText(text, true);
+
+        const zIndex = isHover ? '1000' : undefined;
+        clusterMarker.setZIndex(zIndex);
     };
 
     /**

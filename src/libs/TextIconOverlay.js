@@ -430,8 +430,8 @@ var RMap = window.BMap ? window.BMap : window.BMapGL;
          * @param {Function} listener 需要添加的监听器
          * @remark
          *
-        1. 不支持跨浏览器的鼠标滚轮事件监听器添加<br>
-        2. 改方法不为监听器灌入事件对象，以防止跨iframe事件挂载的事件对象获取失败
+         1. 不支持跨浏览器的鼠标滚轮事件监听器添加<br>
+         2. 改方法不为监听器灌入事件对象，以防止跨iframe事件挂载的事件对象获取失败
 
          * @shortcut on
          * @meta standard
@@ -655,8 +655,8 @@ var RMap = window.BMap ? window.BMap : window.BMapGL;
          * @param {baidu.lang.Event|String} event 	Event对象，或事件名称(1.1.1起支持)
          * @param {Object} 					options 扩展参数,所含属性键值会扩展到Event对象上(1.2起支持)
          * @remark 处理会调用通过addEventListenr绑定的自定义事件回调函数之外，还会调用直接绑定到对象上面的自定义事件。例如：<br>
-        myobj.onMyEvent = function(){}<br>
-        myobj.addEventListener("onMyEvent", function(){});
+         myobj.onMyEvent = function(){}<br>
+         myobj.addEventListener("onMyEvent", function(){});
          */
         baidu.lang.Class.prototype.dispatchEvent = function(event, options) {
             if (baidu.lang.isString(event)) {
@@ -724,7 +724,7 @@ var RMap = window.BMap ? window.BMap : window.BMapGL;
 
      * 图片的后缀名
 
-      * @private
+     * @private
      * @type {String}
 
      */
@@ -760,6 +760,7 @@ var RMap = window.BMap ? window.BMap : window.BMapGL;
             this._styleInterval = this._options.styleInterval || null;
             this._hoverStyles = this._options['hoverStyles'] || [];
             this._isHover = this._options['isHover'] || false;
+            this._zIndex = 'auto';
             !this._styles.length && this._setupDefaultStyles();
         });
 
@@ -785,6 +786,7 @@ var RMap = window.BMap ? window.BMap : window.BMapGL;
 
         this._domElement = document.createElement('div');
         this._domElement.classList.add('marker-cluster');
+        this._domElement.classList.add('is-cluster');
         this._updateCss();
         this._updateText();
         this._updatePosition();
@@ -832,6 +834,26 @@ var RMap = window.BMap ? window.BMap : window.BMapGL;
      */
     TextIconOverlay.prototype.getIsHover = function() {
         return this._isHover;
+    };
+
+    /**
+     *更改鼠标悬浮标识符
+     *@return {String} 该覆盖物上的文字。
+     */
+    TextIconOverlay.prototype.setIsHover = function(isHover) {
+        this._isHover = isHover;
+    };
+
+    /**
+     * 设置 cluster 最外层的 zIndex
+     */
+    TextIconOverlay.prototype.setZIndex = function(zIndex) {
+        if (zIndex) {
+            this._zIndex = this._domElement.style.zIndex;
+            this._domElement.style.zIndex = zIndex;
+        } else {
+            this._domElement.style.zIndex = this._zIndex;
+        }
     };
 
     /**
@@ -916,7 +938,7 @@ var RMap = window.BMap ? window.BMap : window.BMapGL;
         var defaultStyle = [];
         var textStyle = defaultStyle.join(' ');
         if (this._domElement) {
-            this._domElement.innerHTML = `<p style="${textStyle}" class="cluster-text">${this._text}</p>`;
+            this._domElement.innerHTML = `<div style="${textStyle}" class="is-cluster cluster-text-container"><p class="cluster-text">${this._text}</p></div>`;
         }
     };
 
@@ -991,11 +1013,8 @@ var RMap = window.BMap ? window.BMap : window.BMapGL;
             csstext.push(`background-repeat: ${backgroundRepeat};`);
         }
 
-        const zIndex = this._isHover ? 'z-index: 10000;' : 'z-index: auto;';
-        csstext.push(zIndex);
-
         csstext.push(
-            'cursor:pointer; transform: translateZ(0); color:' +
+            'cursor:pointer; color:' +
                 textColor +
                 '; position:absolute; font-size:' +
                 textSize +
@@ -1018,6 +1037,8 @@ var RMap = window.BMap ? window.BMap : window.BMapGL;
         var me = this;
         var map = this._map;
 
+        // 给事件参数增加 pixel 和 point 两个值
+        // 在原生的插件基础上添加了 elem
         var BaseEvent = T.lang.Event;
         function eventExtend(e, be) {
             var elem = e.srcElement || e.target;
@@ -1027,9 +1048,10 @@ var RMap = window.BMap ? window.BMap : window.BMapGL;
                 var offset = T.dom.getPosition(map.getContainer());
                 be.pixel = new RMap.Pixel(x - offset.left, y - offset.top);
                 be.point = map.pixelToPoint(be.pixel);
+                be.elem = elem;
             }
             return be;
-        } //给事件参数增加pixel和point两个值
+        }
 
         T.event.on(this._domElement, 'mouseover', function(e) {
             me.dispatchEvent(eventExtend(e, new BaseEvent('onmouseover')));

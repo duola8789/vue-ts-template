@@ -15,3 +15,17 @@
 
     @return round($px / $height * 100000) / 1000 * 1vh;
 }
+
+// 1920 分辨率下的尺寸对应的最小尺寸（默认以 1280 分辨率下的尺寸为最小尺寸）
+@function min-w($px, $base: 1280px) {
+    $width: 1920px;
+
+    @return round(($px * $base) / $width);
+}
+
+// 1080 分辨率下的尺寸对应的最小尺寸（默认以 600 分辨率下的尺寸为最小尺寸）
+@function min-h($px, $base: 600px) {
+    $height: 1080px;
+
+    @return round(($px * $base) / $height);
+}
