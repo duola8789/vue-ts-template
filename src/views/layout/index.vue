@@ -3,7 +3,15 @@
         <el-header class="head" height="60px">
             <el-button :icon="collapseButtonIcon" class="collapse-button" circle @click="collapseMenu" />
             <h1 class="title">{{ userName }} -- {{ permission }}</h1>
-            <el-button icon="el-icon-user" class="logout-button" circle @click="logoutHandler" />
+            <el-dropdown class="user-control-dropdown" trigger="click" placement="bottom" @command="onCommand">
+                <span class="el-dropdown-link">
+                    {{ userName }}
+                    <i class="el-icon-arrow-down el-icon--right"></i>
+                </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
         </el-header>
         <el-container>
             <el-aside class="aside" width="auto">
@@ -18,10 +26,13 @@
 
 <script lang="ts">
 import {Component, Vue} from 'vue-property-decorator';
-import {State, Getter, Action} from 'vuex-class';
+
 import Menu from './components/menu/index.vue';
-import {LOGOUT_ACTION} from '@/store/root-store/store-types';
+
 import {CommonUrls} from '@/utils';
+
+import {State, Getter, Action} from 'vuex-class';
+import {LOGOUT_ACTION} from '@/store/root-store/store-types';
 
 @Component({components: {Menu}})
 export default class Root extends Vue {
@@ -30,7 +41,7 @@ export default class Root extends Vue {
 
     @Getter isAuthorized!: boolean;
 
-    @Action(LOGOUT_ACTION) logout!: () => Promise<boolean>;
+    @Action(LOGOUT_ACTION) logoutMutation!: () => Promise<boolean>;
 
     isCollapse: boolean = false;
 
@@ -44,18 +55,16 @@ export default class Root extends Vue {
     collapseMenu() {
         this.isCollapse = !this.isCollapse;
     }
-
-    async logoutHandler() {
-        const isLogoutSuccess = await this.logout();
-        if (isLogoutSuccess) {
-            this.$message({
-                type: 'success',
-                message: '已退出',
-                duration: 1000,
-                onClose: () => {
+    onCommand(command: string) {
+        if (command === 'logout') {
+            this.$confirm('您确定要退出登录吗?', '提示', {
+                type: 'warning'
+            })
+                .then(() => {
+                    this.logoutMutation();
                     this.$router.push(CommonUrls.Login).catch(() => {});
-                }
-            });
+                })
+                .catch(() => {});
         }
     }
 }
@@ -97,12 +106,19 @@ export default class Root extends Vue {
             font-size: 16px;
         }
 
-        .go-home-button {
+        .user-control-dropdown {
             position: absolute;
             right: 20px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 20px;
+            font-size: 14px;
+            color: #000;
+            height: 20px;
+            line-height: 20px;
+
+            .el-dropdown-link {
+                @include nice-btn();
+            }
         }
     }
 
