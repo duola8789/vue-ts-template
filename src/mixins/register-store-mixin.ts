@@ -9,12 +9,15 @@ import {registerStoreModule} from '@/utils';
 export default function registerModuleMixinCreator(moduleName: StoreModuleName) {
     @Component
     class RegisterModuleMixin extends Vue {
-        beforeMount() {
+        beforeCreate() {
             registerStoreModule(moduleName, true);
         }
 
         destroyed() {
-            registerStoreModule(moduleName, false);
+            // 开发环境下不卸载 Store
+            if (process.env.NODE_ENV !== 'development') {
+                registerStoreModule(moduleName, false);
+            }
         }
     }
     return RegisterModuleMixin;
