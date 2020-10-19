@@ -1,28 +1,13 @@
 <template>
-    <div class="container">
-        <div class="content">
-            <el-alert type="error" title="您没有此页面的权限" center :closable="false" effect="dark" />
-        </div>
-    </div>
+    <robo403404 type="403" />
 </template>
 
 <script lang="ts">
 import {Component, Vue} from 'vue-property-decorator';
+import Robo403404 from '@/components/robo-403-404/index.vue';
 
-@Component
+@Component({
+    components: {Robo403404}
+})
 export default class Forbidden extends Vue {}
 </script>
-
-<style scoped lang="scss">
-.container {
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    .content {
-        width: 200px;
-        margin: 0 auto;
-    }
-}
-</style>

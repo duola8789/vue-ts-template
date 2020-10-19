@@ -1,28 +1,13 @@
 <template>
-    <div class="container">
-        <img :src="notFoundImg" alt="404" class="not-found-img" />
-    </div>
+    <robo403404 type="404" />
 </template>
 
 <script lang="ts">
 import {Component, Vue} from 'vue-property-decorator';
-import notFoundImg from '@/assets/images/404.png';
+import Robo403404 from '@/components/robo-403-404/index.vue';
 
-@Component
-export default class NotFound extends Vue {
-    notFoundImg: string = notFoundImg;
-}
+@Component({
+    components: {Robo403404}
+})
+export default class Forbidden extends Vue {}
 </script>
-
-<style scoped lang="scss">
-.container {
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    .not-found-img {
-        max-width: 600px;
-    }
-}
-</style>
