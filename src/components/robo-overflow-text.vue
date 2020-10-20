@@ -1,6 +1,9 @@
 <template>
     <div class="robo-overflow-text-container">
-        <div v-if="!isOverflow" ref="content" class="robo-normal-text">{{ content }}</div>
+        <div v-if="!isOverflow" ref="content" class="robo-normal-text">
+            <i :class="icon"></i>
+            {{ content }}
+        </div>
         <el-popover
             v-else
             :trigger="trigger"
@@ -10,6 +13,7 @@
         >
             <p>{{ content }}</p>
             <div slot="reference" class="robo-overflow-text">
+                <i :class="icon"></i>
                 {{ content }}
             </div>
         </el-popover>
@@ -24,8 +28,8 @@ export default class RoboOverflowText extends Vue {
     @Prop({default: 'hover', type: String}) readonly trigger!: string;
     @Prop({default: 'top', type: String}) readonly placement!: string;
     @Prop({required: true, type: String}) readonly content!: string;
-    @Prop({default: 1, type: Number}) readonly linesCount!: number;
     @Prop({default: '', type: String}) readonly popperClass!: string;
+    @Prop({default: '', type: String}) readonly icon!: string;
 
     @Ref('content') readonly contentEl!: HTMLElement;
 
@@ -56,6 +60,7 @@ export default class RoboOverflowText extends Vue {
     .robo-normal-text {
         overflow: hidden;
         white-space: nowrap;
+        transition: color linear 0.2s;
     }
 
     .robo-overflow-text-popover {
@@ -63,6 +68,7 @@ export default class RoboOverflowText extends Vue {
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
+            transition: color linear 0.2s;
         }
     }
 }

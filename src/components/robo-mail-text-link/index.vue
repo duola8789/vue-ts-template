@@ -1,10 +1,12 @@
 <template>
-    <a class="robo-mail-text-link" type="email" :href="mailInfo"><robo-overflow-text :content="text" /></a>
+    <a class="mail-text-link" type="email" :href="mailInfo">
+        <robo-overflow-text :content="text" icon="el-icon-message" />
+    </a>
 </template>
 
 <script lang="ts">
 import {Component, Vue, Prop} from 'vue-property-decorator';
-import RoboOverflowText from './robo-overflow-text.vue';
+import RoboOverflowText from '../robo-overflow-text.vue';
 
 @Component({
     components: {RoboOverflowText}
