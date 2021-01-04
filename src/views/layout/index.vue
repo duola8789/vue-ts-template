@@ -41,7 +41,7 @@ export default class Root extends Vue {
 
     @Getter isAuthorized!: boolean;
 
-    @Action(LOGOUT_ACTION) logoutMutation!: () => Promise<boolean>;
+    @Action(LOGOUT_ACTION) logoutAction!: () => Promise<boolean>;
 
     isCollapse: boolean = false;
 
@@ -61,7 +61,7 @@ export default class Root extends Vue {
                 type: 'warning'
             })
                 .then(() => {
-                    this.logoutMutation();
+                    this.logoutAction();
                     this.$router.push(CommonUrls.Login).catch(() => {});
                 })
                 .catch(() => {});
