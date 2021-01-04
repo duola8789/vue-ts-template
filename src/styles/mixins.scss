@@ -2,7 +2,7 @@
  * 可复用样式类, 在 SCSS 文件中可直接使用，例如 @include absCenter()
  */
 // 绝对定位居中
-@mixin absCenter {
+@mixin absCenter() {
     position: absolute;
     left: 50%;
     top: 50%;
@@ -10,7 +10,7 @@
 }
 
 // 单行文字剪切
-@mixin text-overflow {
+@mixin text-overflow() {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -30,7 +30,7 @@
 }
 
 // 按钮交互优化样式
-@mixin nice-btn {
+@mixin nice-btn() {
     cursor: pointer;
     user-select: none;
 }
@@ -58,7 +58,7 @@
 }
 
 // 竖向分割线
-@mixin gutter-vertical {
+@mixin gutter-vertical() {
     font-size: 0;
     text-align: center;
     height: px2vw(64px);
@@ -78,4 +78,10 @@
         height: inherit;
         background: #40464f;
     }
+}
+
+// 特殊字体
+@mixin number-font($font) {
+    font-family: $font, 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑',
+        Arial, sans-serif;
 }

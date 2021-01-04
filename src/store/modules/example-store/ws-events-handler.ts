@@ -6,11 +6,11 @@ const NAME_SPACE = `${STORE_EXAMPLE}/`;
 
 // WS 推送事件处理程序
 export function exampleMonitorWsListener(messageEvent: MessageEvent) {
-    const wsData: WsResponse<any> = parseMessageEvent(messageEvent);
+    const wsData: TypeWsResponse<any> = parseMessageEvent(messageEvent);
     if (wsData) {
         const {ext, data} = wsData;
         if (data && ext) {
-            switch (+ext.type) {
+            switch (+ext.dataType) {
                 case WS_TOPICS.gisOverviewData: {
                     exampleDataHandler(data as any);
                     break;

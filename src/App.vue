@@ -30,7 +30,7 @@ body {
     height: 100%;
     min-width: 1280px;
     font-weight: normal;
-    background: $mainBackgroundColor;
+    background: #fff;
 }
 
 input::-webkit-credentials-auto-fill-button {

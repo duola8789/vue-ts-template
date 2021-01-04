@@ -7,6 +7,7 @@ export const storeModules: StoreModules = {
         name: 'example',
         path: STORE_EXAMPLE,
         content: ExampleStore
+        // dynamic: true
     }
 };
 

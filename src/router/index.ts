@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueRouter, {RouteConfig} from 'vue-router';
 import {lazyLoadHelper} from '@/utils';
-import {beforeEachCallback, beforeResolveCallback, afterEachCallback} from '@/router/router-guards/index';
+import {beforeEachCallback, beforeResolveCallback, afterEachCallback} from '@/router/router-guard';
 import {CommonUrls} from '@/utils';
 
 import exampleRoutes from '@/router/modules/example.ts';

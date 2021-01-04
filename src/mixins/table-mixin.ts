@@ -21,6 +21,10 @@ export default class TableMixin extends Vue {
     }
 
     getCellClass({column}: any) {
-        return column.property === 'image' ? 'image-cell' : '';
+        return `${column.property}-cell`;
+    }
+
+    getHeaderClass({column}: any) {
+        return `${column.property}-header-cell`;
     }
 }
