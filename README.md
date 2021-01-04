@@ -1,5 +1,7 @@
 # Vue + TypeScript Project
 
+更新日期（2020.01.04）
+
 项目初始化后，需要自行配置：
 
 - `index.html` 中对应的文档标题

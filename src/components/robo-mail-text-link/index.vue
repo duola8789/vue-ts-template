@@ -6,7 +6,7 @@
 
 <script lang="ts">
 import {Component, Vue, Prop} from 'vue-property-decorator';
-import RoboOverflowText from '../robo-overflow-text.vue';
+import RoboOverflowText from '../robo-overflow-text/index.vue';
 
 @Component({
     components: {RoboOverflowText}

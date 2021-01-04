@@ -8,8 +8,9 @@
             v-else
             :trigger="trigger"
             :placement="placement"
-            class="robo-overflow-text-popover"
             :popper-class="innerPopperClass"
+            :open-delay="100"
+            class="robo-overflow-text"
         >
             <p>{{ content }}</p>
             <div slot="reference" class="robo-overflow-text">
@@ -25,9 +26,11 @@ import {Component, Vue, Prop, Watch, Ref} from 'vue-property-decorator';
 
 @Component
 export default class RoboOverflowText extends Vue {
+    @Prop({default: true, type: Boolean}) readonly isSingleLine!: boolean;
     @Prop({default: 'hover', type: String}) readonly trigger!: string;
     @Prop({default: 'top', type: String}) readonly placement!: string;
     @Prop({required: true, type: String}) readonly content!: string;
+    @Prop({default: 1, type: Number}) readonly linesCount!: number;
     @Prop({default: '', type: String}) readonly popperClass!: string;
     @Prop({default: '', type: String}) readonly icon!: string;
 
@@ -73,6 +76,7 @@ export default class RoboOverflowText extends Vue {
     }
 }
 </style>
+
 <style lang="scss">
 .robo-overflow-default-popper-class {
     &.el-popover {

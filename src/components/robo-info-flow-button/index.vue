@@ -1,5 +1,5 @@
 <template>
-    <a class="robo-info-flow" :href="infoId">
+    <a class="robo-info-flow-button" :href="infoId">
         <i class="info-flow-icon"></i>
     </a>
 </template>
@@ -10,6 +10,7 @@ import {Component, Vue, Prop} from 'vue-property-decorator';
 @Component
 export default class RoboInfoFlowButton extends Vue {
     @Prop({type: String, required: true}) infoFlowId!: string;
+    @Prop({type: String, required: true}) infoFlowName!: string;
 
     get infoId() {
         return `baidu://message/?id=${this.infoFlowId}`;
@@ -18,10 +19,11 @@ export default class RoboInfoFlowButton extends Vue {
 </script>
 
 <style scoped lang="scss">
-.robo-info-flow {
+.robo-info-flow-button {
     display: inline-block;
     float: right;
     margin-top: 2px;
+    cursor: pointer;
 
     .info-flow-icon {
         display: inline-block;
@@ -29,6 +31,7 @@ export default class RoboInfoFlowButton extends Vue {
         height: 16px;
         background: url('./icons/info-flow.png') no-repeat center center;
         background-size: cover;
+        vertical-align: middle;
     }
 }
 </style>

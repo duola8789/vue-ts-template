@@ -16,10 +16,10 @@
 
 <script lang="ts">
 import {Component, Vue, Prop, Emit} from 'vue-property-decorator';
-import {CURRENT_PROJECT_INFO} from '@/config';
 
 @Component
 export default class RoboViewportBtn extends Vue {
+    @Prop({type: Object, required: true}) defaultMapInfo!: {mapZoom: number; mapCenter: BMap.Point | BMapGL.Point};
     @Prop({required: true}) map!: TypeRMap | null;
     @Prop({type: Number}) zoom!: number;
     @Prop({type: Object}) center!: TypeRPoint;
@@ -38,8 +38,8 @@ export default class RoboViewportBtn extends Vue {
     }
 
     async locateHandler() {
-        const zoom = this.zoom ? this.zoom : CURRENT_PROJECT_INFO.mapZoom;
-        const center = this.center ? this.center : CURRENT_PROJECT_INFO.mapCenter;
+        const zoom = this.zoom ? this.zoom : this.defaultMapInfo.mapZoom;
+        const center = this.center ? this.center : this.defaultMapInfo.mapCenter;
         if (this.mapInstance) {
             this.mapInstance.setZoom(zoom);
             this.mapInstance.panTo(center, {noAnimation: false});

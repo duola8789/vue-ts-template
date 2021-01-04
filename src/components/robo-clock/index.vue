@@ -12,7 +12,7 @@ import {Component, Vue, Prop, Watch} from 'vue-property-decorator';
 import {formatTimeHelper} from '@/utils';
 
 @Component
-export default class RoboTime extends Vue {
+export default class RoboClock extends Vue {
     @Prop({required: true, type: Number}) time!: number;
 
     @Watch('time')
