@@ -6,8 +6,8 @@ export const MAIL_CONFIG: TypeMailConfig = {
             id: '2-01',
             templateId: '1',
             btnText: '开票申请',
-            receivers: ['guandandan02@baidu.com'],
-            carbonCopies: ['zhangbei04@baidu.com', 'xieranxu@baidu.com'],
+            receivers: ['abc@xx.com'],
+            carbonCopies: ['abc@xx.com', 'abc@xx.com'],
             subject: 'XX项目XX阶段申请开票',
             body: [
                 '您好，XX项目XX阶段已交付完成，申请开票，请协助支持，谢谢。',
@@ -23,8 +23,8 @@ export const MAIL_CONFIG: TypeMailConfig = {
             id: '2-01',
             templateId: '2',
             btnText: '认款申请',
-            receivers: ['guandandan02@baidu.com'],
-            carbonCopies: ['zhangbei04@baidu.com', 'xieranxu@baidu.com'],
+            receivers: ['abc@xx.com'],
+            carbonCopies: ['abc@xx.com', 'abc@xx.com'],
             subject: 'XX项目认款申请',
             body: [
                 '您好，XX项目已经回款，需要在招财猫系统中进行认款，请协助支持，谢谢。',
