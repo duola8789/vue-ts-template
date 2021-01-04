@@ -1,4 +1,4 @@
-/* eslint-disable */
+﻿/* eslint-disable */
 /**
  * @fileo MarkerClusterer标记聚合器用来解决加载大量点要素到地图上产生覆盖现象的问题，并提高性能。
  * 主入口类是<a href="symbols/BMapLib.MarkerClusterer.html">MarkerClusterer</a>，
@@ -591,10 +591,9 @@ var isMapGl = RMap === window.BMapGL;
                 this._map.addOverlay(this._markers[i]);
             }
         } else {
-            // for 循环的目的是为清除 cluster 添加 markers，清除原有的 marker，观察是否会降低性能
-            for (var i = 0; i < len; i++) {
-                this._map.removeOverlay(this._markers[i]);
-            }
+            // 在动态添加数据时，由单个 marker 变为聚合点时，单个 marker 需要被清除，否则会遗留单个 marker 点
+            !this._isReal && this._map.removeOverlay(this._markers[0]);
+
             this._map.addOverlay(this._clusterMarker);
             this._isReal = true;
             this.updateClusterMarker();
