@@ -1026,7 +1026,7 @@ var RMap = window.BMap ? window.BMap : window.BMapGL;
 
     /**
      * 为该覆盖物绑定一系列事件
-     * 当前支持click mouseover mouseout
+     * 当前支持click mouseover mouseout touchend
      * @return 无返回值。
      */
     TextIconOverlay.prototype._bind = function() {
@@ -1042,8 +1042,10 @@ var RMap = window.BMap ? window.BMap : window.BMapGL;
         var BaseEvent = T.lang.Event;
         function eventExtend(e, be) {
             var elem = e.srcElement || e.target;
-            var x = e.clientX || e.pageX;
-            var y = e.clientY || e.pageY;
+            const event = e.type === 'touchend' ? e.changedTouches[0] : e;
+            var x = event.clientX || event.pageX;
+            var y = event.clientY || event.pageY;
+
             if (e && be && x && y && elem) {
                 var offset = T.dom.getPosition(map.getContainer());
                 be.pixel = new RMap.Pixel(x - offset.left, y - offset.top);
@@ -1061,6 +1063,11 @@ var RMap = window.BMap ? window.BMap : window.BMapGL;
         });
         T.event.on(this._domElement, 'click', function(e) {
             me.dispatchEvent(eventExtend(e, new BaseEvent('onclick')));
+        });
+        T.event.on(this._domElement, 'touchend', function(e) {
+            me.dispatchEvent(eventExtend(e, new BaseEvent('touchend')));
+            // 要停止冒泡，因为会冒泡到地图上
+            e.stopPropagation();
         });
     };
 })();

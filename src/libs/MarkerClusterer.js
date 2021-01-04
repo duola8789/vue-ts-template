@@ -1,4 +1,4 @@
-﻿/* eslint-disable */
+/* eslint-disable */
 /**
  * @fileo MarkerClusterer标记聚合器用来解决加载大量点要素到地图上产生覆盖现象的问题，并提高性能。
  * 主入口类是<a href="symbols/BMapLib.MarkerClusterer.html">MarkerClusterer</a>，
@@ -209,14 +209,12 @@ var isMapGl = RMap === window.BMapGL;
             }
         }
 
-        setTimeout(() => {
-            var len = this._markers.length;
-            for (var i = 0; i < len; i++) {
-                if (this._clusters[i]) {
-                    this._clusters[i].render();
-                }
+        var len = this._markers.length;
+        for (var i = 0; i < len; i++) {
+            if (this._clusters[i]) {
+                this._clusters[i].render();
             }
-        });
+        }
     };
 
     /**
@@ -492,7 +490,11 @@ var isMapGl = RMap === window.BMapGL;
         //this._map.addOverlay(this._clusterMarker);
 
         var that = this;
-        this._clusterMarker.addEventListener('click', function(event) {
+        this._clusterMarker.addEventListener('touchend', clickHandler);
+
+        this._clusterMarker.addEventListener('click', clickHandler);
+
+        function clickHandler(event) {
             const currentZoom = that._map.getZoom();
             // 处理两个点完全重合的情况，此时在最大缩放条件下，仍然需要聚合，执行传入的 callback
             if (currentZoom === that._mapMaxZoom) {
@@ -504,7 +506,7 @@ var isMapGl = RMap === window.BMapGL;
                 const boundary = [bound.getSouthWest(), bound.getNorthEast()];
                 that._map.setViewport(boundary, {margins: that.margins, enableAnimation: true});
             }
-        });
+        }
 
         const _hoverStyles = this._markerClusterer._hoverStyles;
         const addHoverEvent = Array.isArray(_hoverStyles) && _hoverStyles.length > 0;

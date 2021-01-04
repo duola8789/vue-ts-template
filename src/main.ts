@@ -11,6 +11,9 @@ import '@/styles/reset.css';
 import '@/styles/baidu-map.scss';
 import '@/styles/element/index.scss';
 
+import '@/libs/TextIconOverlay';
+import '@/libs/MarkerClusterer';
+
 Vue.config.productionTip = false;
 
 new Vue({
