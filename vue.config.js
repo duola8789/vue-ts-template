@@ -15,7 +15,14 @@ module.exports = {
     publicPath: './',
     devServer: {
         port: 8006,
-        disableHostCheck: true
+        disableHostCheck: true,
+        proxy: {
+            '/inspection': {
+                target: 'http://test-telecontrol.baidu.com',
+                changeOrigin: true,
+                ws: true
+            }
+        }
     },
     productionSourceMap: false,
     configureWebpack: {
