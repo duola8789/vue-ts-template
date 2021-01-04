@@ -135,24 +135,6 @@ export const splitArr = <T>(arr: T[], splitNum = 10): T[][] => {
     return result;
 };
 
-// 拼接 BaseUrl
-export const getBaseUrl = (baseUrl: string | undefined, params?: object): string => {
-    let base: string = '';
-    if (baseUrl && baseUrl.startsWith('http')) {
-        base = baseUrl;
-    } else {
-        const {protocol, host} = window.location;
-        base = `${protocol}//${host}${baseUrl}`;
-    }
-    const url = new URL('http://test');
-    if (params) {
-        for (const [key, value] of Object.entries(params)) {
-            url.searchParams.append(key, value);
-        }
-    }
-    return `${base}?${url.searchParams.toString()}`;
-};
-
 // 动态注册/卸载 Vuex Store
 export const registerStoreModule = (moduleName: StoreModuleName, isRegister: boolean) => {
     const targetModule = storeModules[moduleName];

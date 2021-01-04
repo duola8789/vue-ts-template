@@ -6,14 +6,13 @@ import {Message} from 'element-ui';
 import store from '@/store';
 import {parseJSON, stringifyParams} from '@/utils/index';
 import {WS_CONNECT_ACTION} from '@/store/root-store/store-types';
-import {CURRENT_PROJECT_INFO} from '@/config';
 
 // 默认的 WS 连接前缀
 export const WS_BASE_URL = process.env.VUE_APP_WS_BASE_URL;
 
 // 获取完整的 WS 链接 URL，在此项 WS 链接后添加参数
 const _getWSUrl = (url: string, params: any) => {
-    const baseParams = {project: CURRENT_PROJECT_INFO.projectKey, token: store.state.token || undefined};
+    const baseParams = {projectId: store.getters.currentProjectInfo.projectId, token: store.state.token || undefined};
     const paramsUrl = stringifyParams(Object.assign({}, baseParams, params));
 
     if (url.startsWith('ws')) {
@@ -26,6 +25,11 @@ const _getWSUrl = (url: string, params: any) => {
 
     const {protocol, host} = window.location;
     const wsProtocol = protocol === 'https:' ? 'wss' : 'ws';
+
+    if (WS_BASE_URL.startsWith('//')) {
+        return paramsUrl ? `${wsProtocol}:${WS_BASE_URL}${url}?${paramsUrl}` : `${wsProtocol}:${WS_BASE_URL}${url}`;
+    }
+
     return paramsUrl
         ? `${wsProtocol}://${host}${WS_BASE_URL}${url}?${paramsUrl}`
         : `${wsProtocol}://${host}${WS_BASE_URL}${url}`;

@@ -29,7 +29,7 @@ import {Component, Vue} from 'vue-property-decorator';
 
 import Menu from './components/menu/index.vue';
 
-import {CommonUrls} from '@/utils';
+import {goLogin} from '@/utils';
 
 import {State, Getter, Action} from 'vuex-class';
 import {LOGOUT_ACTION} from '@/store/root-store/store-types';
@@ -55,14 +55,17 @@ export default class Root extends Vue {
     collapseMenu() {
         this.isCollapse = !this.isCollapse;
     }
+
     onCommand(command: string) {
         if (command === 'logout') {
             this.$confirm('您确定要退出登录吗?', '提示', {
                 type: 'warning'
             })
-                .then(() => {
-                    this.logoutAction();
-                    this.$router.push(CommonUrls.Login).catch(() => {});
+                .then(async () => {
+                    const logoutSuccess = await this.logoutAction();
+                    if (logoutSuccess) {
+                        goLogin('已退出', 'success');
+                    }
                 })
                 .catch(() => {});
         }
@@ -87,7 +90,6 @@ export default class Root extends Vue {
             height: inherit;
             line-height: inherit;
             font-size: 20px;
-            color: $mainTextColor;
         }
 
         .collapse-button {

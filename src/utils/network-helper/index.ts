@@ -1,5 +1,5 @@
-import axios from 'axios';
-import {Instance, Get, Post, Put, Del} from '@/utils/network-helper/types';
+import axios, {AxiosInstance} from 'axios';
+import {TypeGet, TypePost, TypePut, TypeDel, TypeUpload} from '@/utils/network-helper/types';
 import {
     loadingRequestHandler,
     loadingResponseHandler,
@@ -8,7 +8,7 @@ import {
 } from './interceptorHandler';
 
 // 创建 Axios 实例
-const axiosInstance: Instance = axios.create({
+const axiosInstance: AxiosInstance = axios.create({
     timeout: 15000,
     baseURL: process.env.VUE_APP_BASE_URL
 });
@@ -22,13 +22,13 @@ axiosInstance.interceptors.response.use(loadingResponseHandler.onFulfilled, load
 axiosInstance.interceptors.response.use(commonErrorHandler.onFulfilled, commonErrorHandler.onRejected);
 
 // 封装 get 方法
-const get: Get = async (url, params = {}, config) => {
+const get: TypeGet = async (url, params = {}, config) => {
     const response = await axiosInstance.get(url, {params, ...config});
     return response.data;
 };
 
 // 封装 post 方法
-const post: Post = async (url, data = {}, config) => {
+const post: TypePost = async (url, data = {}, config) => {
     const response = await axiosInstance.post(url, data, {
         ...config
     });
@@ -36,7 +36,7 @@ const post: Post = async (url, data = {}, config) => {
 };
 
 // 封装 put 方法
-const put: Put = async (url, data = {}, config) => {
+const put: TypePut = async (url, data = {}, config) => {
     const response = await axiosInstance.put(url, data, {
         ...config
     });
@@ -44,7 +44,7 @@ const put: Put = async (url, data = {}, config) => {
 };
 
 // 封装 put 方法
-const del: Del = async (url, data = {}, config) => {
+const del: TypeDel = async (url, data = {}, config) => {
     const response = await axiosInstance.delete(url, {
         data,
         ...config
@@ -52,5 +52,16 @@ const del: Del = async (url, data = {}, config) => {
     return response.data;
 };
 
+// 封装 upload 方法，默认使用 post 方法
+const upload: TypeUpload = async (url, data = {}, config) => {
+    const response = await axiosInstance({
+        url,
+        method: 'post',
+        data,
+        ...config
+    });
+    return response.data;
+};
+
 // 使用 request 统一调用
-export const request = {get, post, del, put};
+export const request = {get, post, del, put, upload};

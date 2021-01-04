@@ -28,7 +28,7 @@ class LoadingCounter {
             if (this.getLoadings() === 0 && this.loadingInstance) {
                 this.loadingInstance.close();
             }
-        }, 50);
+        }, 200);
     }
 
     clearLoading() {

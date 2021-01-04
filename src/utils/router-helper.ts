@@ -5,6 +5,7 @@ import store from '@/store';
 import {Message} from 'element-ui';
 import {LOGOUT_MUTATION, USER_PERMISSION_ACTION, USER_PERMISSION_MUTATION} from '@/store/root-store/store-types';
 import {USER_PERMISSION_HASH} from '@/config';
+import {HTTP_CODE_HASH} from '@/utils/network-helper/interceptorHandler';
 
 const IS_DEV_ENV = process.env.NODE_ENV === 'development';
 
@@ -28,6 +29,19 @@ export enum CommonUrls {
     Forbidden = '/403',
     NotFound = '/404'
 }
+
+// 跳转统一登录
+export const goLogin = (message = HTTP_CODE_HASH[401], type: 'error' | 'success' = 'error') => {
+    Message({
+        type,
+        message,
+        duration: 1500,
+        onClose: () => {
+            window.sessionStorage.setItem('_robo_login_destination', window.location.href);
+            window.location.href = `${window.location.origin}/#/login`;
+        }
+    });
+};
 
 // 验证登录状态
 export const checkLogin = () => {
@@ -53,16 +67,27 @@ export const checkPermission = async (toPath: string, fromPath: string, next: (t
         return true;
     }
 
+    let hintError = true;
+
     const permission = store.state.permission;
     if (permission === -1) {
         try {
             // 重新获取权限
-            await store.dispatch(USER_PERMISSION_ACTION);
+            const res = await store.dispatch(USER_PERMISSION_ACTION);
+            if (!res) {
+                // 重新获取权限失败，清除或重置权限信息
+                store.commit(USER_PERMISSION_MUTATION, USER_PERMISSION_HASH.forbidden);
+                hintError = false;
+            }
         } catch (err) {
             // 重新获取权限失败，清除或重置权限信息
             store.commit(USER_PERMISSION_MUTATION, USER_PERMISSION_HASH.forbidden);
             return false;
         }
+    }
+
+    if (toPath === CommonUrls.NotFound) {
+        return true;
     }
 
     const isAuthorized = store.getters.isAuthorized;
@@ -80,7 +105,7 @@ export const checkPermission = async (toPath: string, fromPath: string, next: (t
         return true;
     }
 
-    Message.error('您没有此模块访问权限，如有需要请与管理员联系');
+    hintError && Message.error(HTTP_CODE_HASH[403]);
 
     next(CommonUrls.Forbidden);
     return false;

@@ -1,16 +1,17 @@
-// 请求拦截 - 处理 loading
-import {HintNetError, InterceptorRequestHandler, InterceptorResponseHandler} from '@/utils/network-helper/types';
+// 请求拦截
+import store from '@/store';
+import router from '@/router';
+
+import {TypeHintNetError, TypeInterceptorReqHandler, TypeInterceptorResHandler} from '@/utils/network-helper/types';
 import {loadingCounter} from '@/utils/network-helper/loading-counter';
 import {LOGIN_URL, LOGOUT_MUTATION, LOGOUT_URL, USER_PERMISSION_MUTATION} from '@/store/root-store/store-types';
 import {Message} from 'element-ui';
-import store from '@/store';
-import router from '@/router';
-import {CommonUrls} from '@/utils';
-import {CURRENT_PROJECT_INFO, USER_PERMISSION_HASH} from '@/config';
+import {CommonUrls, goLogin} from '@/utils';
+import {USER_PERMISSION_HASH} from '@/config';
 
 // HTTP CODE 对照码
 // MSDN: https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Status
-const HTTP_CODE_HASH: {[propName: string]: string} = {
+export const HTTP_CODE_HASH: {[propName: string]: string} = {
     0: '成功',
     100: '传入参数不正确',
     101: '数据已存在',
@@ -36,7 +37,7 @@ const FREE_TOKEN_REQUEST_URL = [LOGIN_URL, LOGOUT_URL];
 
 // 网络错误提示, 同一时间只提示一次
 let messageBoxCount = 0;
-const hintNetError: HintNetError = (code = 999, msg) => {
+const hintNetError: TypeHintNetError = (code = 999, msg) => {
     if (messageBoxCount === 0) {
         messageBoxCount += 1;
         Message({
@@ -55,7 +56,7 @@ const exceptionLogout = (code: number) => {
     // 无 token 退出登录
     if (code === 401) {
         store.commit(LOGOUT_MUTATION);
-        router.push(CommonUrls.Login).catch(() => {});
+        goLogin();
         return;
     }
 
@@ -67,7 +68,7 @@ const exceptionLogout = (code: number) => {
 };
 
 // 请求拦截 - 处理 loading
-export const loadingRequestHandler: InterceptorRequestHandler = {
+export const loadingRequestHandler: TypeInterceptorReqHandler = {
     // 正常请求添加 loading
     onFulfilled: (config) => {
         // 除非传入 noGlobalLoading 参数，否则都会默认添加全局 loading
@@ -83,7 +84,7 @@ export const loadingRequestHandler: InterceptorRequestHandler = {
 };
 
 // 请求拦截 - 添加 token
-export const tokenRequestHandler: InterceptorRequestHandler = {
+export const tokenRequestHandler: TypeInterceptorReqHandler = {
     // 正常请求向 header 中添加 token (除登录或者退出登录之外的请求）
     onFulfilled: (config) => {
         const token = store.state.token;
@@ -91,12 +92,25 @@ export const tokenRequestHandler: InterceptorRequestHandler = {
         if (!isFreeTokenRequest && token) {
             config.headers.token = token;
         }
-        if (config.method && CURRENT_PROJECT_INFO && CURRENT_PROJECT_INFO.projectId) {
-            config.params = {projectId: CURRENT_PROJECT_INFO.projectId, ...config.params};
+        if (config.method && store.state.currentProjectId) {
+            // 所有的请求，只要前端存储了 projectId，都应该在 URL 中附加，后端根据此 projectId 进行权限校验
+            config.params = config.params ? config.params : {};
+            if (!config.params.projectId) {
+                config.params = {
+                    ...config.params,
+                    projectId: store.state.currentProjectId
+                };
+            }
 
             // 非 get 请求，请求 body 中也添加 projectId
             if (['post', 'put', 'delete', 'patch'].includes(config.method)) {
-                config.data = {projectId: CURRENT_PROJECT_INFO.projectId, ...config.data};
+                config.data = config.data ? config.data : {};
+                if (!config.data.projectId) {
+                    config.data = {
+                        ...config.data,
+                        projectId: store.state.currentProjectId
+                    };
+                }
             }
         }
         return config;
@@ -108,7 +122,7 @@ export const tokenRequestHandler: InterceptorRequestHandler = {
 };
 
 // 响应拦截 - 处理 loading
-export const loadingResponseHandler: InterceptorResponseHandler = {
+export const loadingResponseHandler: TypeInterceptorResHandler = {
     // 成功响应去除 loading
     onFulfilled: (response) => {
         // 对于 noGlobalLoading 为 true 的情况，不必处理 loading
@@ -128,7 +142,7 @@ export const loadingResponseHandler: InterceptorResponseHandler = {
 };
 
 // 响应拦截 - 处理异常
-export const commonErrorHandler: InterceptorResponseHandler = {
+export const commonErrorHandler: TypeInterceptorResHandler = {
     // 拦截业务异常响应
     onFulfilled: (response) => {
         const {data, config} = response;
