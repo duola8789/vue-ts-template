@@ -17,6 +17,7 @@ module.exports = {
         port: 8006,
         disableHostCheck: true
     },
+    productionSourceMap: false,
     configureWebpack: {
         plugins: [
             new StyleLintPlugin({
@@ -59,7 +60,7 @@ function addStyleResource(rule) {
             patterns: [
                 path.resolve(__dirname, './src/styles/variables.scss'),
                 path.resolve(__dirname, './src/styles/mixins.scss'),
-                path.resolve(__dirname, './src/styles/functions.scss'),
+                path.resolve(__dirname, './src/styles/functions.scss')
             ]
         });
 }

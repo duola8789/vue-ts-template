@@ -36,6 +36,10 @@ case "$1" in
     *) build_command="build"
     ;;
 esac
+
+# 编译日志中打印执行的编译命令
+echo "build_command: $build_command"
+
 yarn ${build_command}
 
 # output 是编译机群的约定，必须是 output，否则会导致产品库拉取的目录是空的。
