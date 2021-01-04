@@ -26,15 +26,18 @@ import {
 } from './store-types';
 import {request, WS_URLS, wsConnectHelper} from '@/utils';
 
-import {USER_PERMISSION_HASH} from '@/config';
+import {PROJECT_INFO_HASH, USER_PERMISSION_HASH} from '@/config';
+import {TypeProjectIds} from '@/config/types';
 
 const KEY_PREFIX = `_robotaxi_`;
 const TOKEN_KEY = `${KEY_PREFIX}token`;
 const USERNAME_KEY = `${KEY_PREFIX}user_name`;
+const PROJECT_ID_KEY = `${KEY_PREFIX}_inspection_project_id`;
 
 const state: RootState = {
     token: window.localStorage.getItem(TOKEN_KEY) || '',
     userName: window.localStorage.getItem(USERNAME_KEY) || '',
+    currentProjectId: (window.localStorage.getItem(PROJECT_ID_KEY) as TypeProjectIds) || '',
     permission: -1,
     ws: null
 };
@@ -47,6 +50,9 @@ const getters: RootGetters = {
     isAuthorized(state) {
         const visiblePermission: number[] = [USER_PERMISSION_HASH.admin, USER_PERMISSION_HASH.user];
         return visiblePermission.includes(+state.permission);
+    },
+    currentProjectInfo(state) {
+        return state.currentProjectId ? PROJECT_INFO_HASH[state.currentProjectId] : PROJECT_INFO_HASH.CH_CHANGSHA;
     }
 };
 

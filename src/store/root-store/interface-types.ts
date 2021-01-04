@@ -10,7 +10,7 @@ import {
     WS_CONNECT_ACTION,
     WS_DISCONNECT_ACTION
 } from './store-types';
-import {TypeUserPermissionCodes} from '@/config/types';
+import {TypeProjectInfo, TypeUserPermissionCodes, TypeProjectIds} from '@/config/types';
 
 export type TypeUserPermissions = TypeUserPermissionCodes | -1;
 
@@ -24,11 +24,13 @@ export interface RootState {
     userName: string;
     permission: TypeUserPermissions;
     ws: WebSocket | null;
+    currentProjectId: TypeProjectIds | '';
 }
 
 export interface RootGetters extends GetterTree<RootState, RootState> {
     isLogin(): () => boolean;
     isAuthorized(state: RootState): boolean;
+    currentProjectInfo(state: RootState): TypeProjectInfo;
 }
 
 export interface RootMutations extends MutationTree<RootState> {
