@@ -1,7 +1,7 @@
-export type NumberArray2 = [number, number];
+export type TypeNumberArray2 = [number, number];
 
-export interface InitMapOptions {
-    centerPoint?: NumberArray2 | TypeRPoint;
+export interface TypeInitMapOptions {
+    centerPoint?: TypeNumberArray2 | TypeRPoint;
     zoom?: number;
     minZoom?: number;
     maxZoom?: number;
@@ -12,22 +12,22 @@ export interface InitMapOptions {
     disableDoubleClickZoom?: boolean;
 }
 
-export interface InitMap {
-    (id: string, options?: InitMapOptions): Promise<TypeRMap>;
+export interface TypeInitMap {
+    (id: string, options?: TypeInitMapOptions): Promise<TypeRMap>;
 }
 
-export interface ConvertPoint {
-    (point: NumberArray2 | TypeRPoint, from?: 1 | 5, to?: 1 | 5): TypeRPoint;
+export interface TypeConvertPoint {
+    (point: TypeNumberArray2 | TypeRPoint, from?: 1 | 5, to?: 1 | 5): TypeRPoint;
 }
 
-export interface AddMapMarker {
+export interface TypeAddMapMarker {
     (
-        point: NumberArray2 | TypeRPoint,
-        icon: {src: string; size: NumberArray2; anchor?: NumberArray2},
+        point: TypeNumberArray2 | TypeRPoint,
+        icon: {src: string; size: TypeNumberArray2; anchor?: TypeNumberArray2},
         options?: {
             needScaled?: boolean;
             rotation?: number;
-            labelOffset?: NumberArray2;
+            labelOffset?: TypeNumberArray2;
             needAnimation?: boolean;
             animationEffect?: TypeRAnimation; // 默认的动画效果
             animationScale?: number;
@@ -37,7 +37,7 @@ export interface AddMapMarker {
     ): TypeRMarker;
 }
 
-export interface AddMarkerAnimation {
+export interface TypeAddMarkerAnimation {
     (
         marker: TypeRMarker,
         options?: {
@@ -49,53 +49,53 @@ export interface AddMarkerAnimation {
     ): TypeRMarker;
 }
 
-export interface AddCommonLabel {
+export interface TypeAddCommonLabel {
     (
         target: TypeRMap | TypeRMarker,
         content: string,
-        point?: NumberArray2 | TypeRPoint,
+        point?: TypeNumberArray2 | TypeRPoint,
         options?: {labelStyle?: object; needScaled?: boolean}
     ): TypeRLabel;
 }
 
-export interface AddMapLabel {
+export interface TypeAddMapLabel {
     (
         target: TypeRMap | TypeRMarker,
         text: string,
-        point: NumberArray2 | TypeRPoint,
-        offset: NumberArray2,
+        point: TypeNumberArray2 | TypeRPoint,
+        offset: TypeNumberArray2,
         className: string,
         options?: {needTriangle?: boolean; labelStyle?: object; needScaled?: boolean}
     ): TypeRLabel;
 }
 
-export interface AddMapLineOption {
+export interface TypeAddMapLineOption {
     strokeColor?: string;
     strokeWeight?: number;
     strokeOpacity?: number;
     needScaled?: boolean;
 }
 
-export interface AddMapLine {
-    (map: TypeRMap, line: NumberArray2[] | TypeRPoint[], options?: AddMapLineOption): TypeRPolyline;
+export interface TypeAddMapLine {
+    (map: TypeRMap, line: TypeNumberArray2[] | TypeRPoint[], options?: TypeAddMapLineOption): TypeRPolyline;
 }
 
-export interface AddMapLines {
-    (map: TypeRMap, lines: TypeRPoint[][] | NumberArray2[], options?: AddMapLineOption): TypeRPolyline[];
+export interface TypeAddMapLines {
+    (map: TypeRMap, lines: TypeRPoint[][] | TypeNumberArray2[], options?: TypeAddMapLineOption): TypeRPolyline[];
 }
 
-export interface GetMapLocation {
-    (point: NumberArray2 | TypeRPoint): Promise<string>;
+export interface TypeGetMapLocation {
+    (point: TypeNumberArray2 | TypeRPoint): Promise<string>;
 }
 
-export interface SetMapCenter {
-    (map: TypeRMap, point: NumberArray2 | TypeRPoint): void;
+export interface TypeSetMapCenter {
+    (map: TypeRMap, point: TypeNumberArray2 | TypeRPoint): void;
 }
 
-export interface SetMapViewport {
+export interface TypeSetMapViewport {
     (
         map: TypeRMap,
-        points: TypeRPoint[] | NumberArray2[],
+        points: TypeRPoint[] | TypeNumberArray2[],
         options?: {
             margins?: number[];
             enableAnimation?: boolean;
@@ -106,48 +106,37 @@ export interface SetMapViewport {
     ): void;
 }
 
-export interface ChangeMarkerIcon {
+export interface TypeChangeMarkerIcon {
     (
         marker: TypeRMarker,
         options: {
-            iconSize: NumberArray2;
+            iconSize: TypeNumberArray2;
             icon: string;
             withAnimation?: boolean;
             needScaled?: boolean;
             zIndex?: number;
-            anchor?: NumberArray2;
+            anchor?: TypeNumberArray2;
         }
     ): TypeRMarker;
 }
 
-export interface GetMapBoundsPoint {
+export interface TypeGetMapBoundsPoint {
     (map: TypeRMap): TypeRPoint[];
 }
 
-export interface AddMapMask {
+export interface TypeAddMapMask {
     (map: TypeRMap, options: {fillColor: string; fillOpacity: number}): TypeRPolygon;
 }
 
-export interface ResetMap {
+export interface TypeResetMap {
     (map: TypeRMap, centerPoint?: TypeRPoint, zoom?: number, noAnimation?: boolean): void;
 }
 
-export interface GetLabelOffsetYByHeadingAngle {
-    (
-        labelHeight: number,
-        baseGap: number,
-        headingAngle: number,
-        options?: {
-            needScaled?: boolean;
-        }
-    ): number;
-}
-
-export interface ChangeLabelContent {
+export interface TypeChangeLabelContent {
     (
         label: TypeRLabel,
         content: string,
-        iconOffset: NumberArray2,
+        iconOffset: TypeNumberArray2,
         options?: {zIndex?: number; needScaled?: boolean}
     ): TypeRLabel;
 }

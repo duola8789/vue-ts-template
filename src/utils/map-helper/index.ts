@@ -5,44 +5,49 @@
  * 所有坐标二维数组，都需要经度在前，纬度在后
  */
 
-// TODO: needScaled 是一个不太好的特性
-// 原因是CSS中的 vw 是对应的宽度是即时改变的，但是地图中的手动缩放需要刷新页面重新生成实例后才能生效，刷新就会产生显示错位
-// 如果仍采用缩放，那么就需要监听地图的resize事件，改变所有图标的尺寸
-
 import {
-    InitMap,
-    AddMapMarker,
-    AddMapLabel,
-    AddMapLines,
-    AddMapLine,
-    AddCommonLabel,
-    ConvertPoint,
-    GetMapLocation,
-    SetMapCenter,
-    SetMapViewport,
-    ChangeMarkerIcon,
-    AddMapMask,
-    GetMapBoundsPoint,
-    AddMarkerAnimation,
-    ResetMap,
-    GetLabelOffsetYByHeadingAngle,
-    ChangeLabelContent
+    TypeInitMap,
+    TypeAddMapMarker,
+    TypeAddMapLabel,
+    TypeAddMapLines,
+    TypeAddMapLine,
+    TypeAddCommonLabel,
+    TypeConvertPoint,
+    TypeGetMapLocation,
+    TypeSetMapCenter,
+    TypeSetMapViewport,
+    TypeChangeMarkerIcon,
+    TypeAddMapMask,
+    TypeGetMapBoundsPoint,
+    TypeAddMarkerAnimation,
+    TypeResetMap,
+    TypeChangeLabelContent
 } from './types';
 
 import {Position} from 'gcoord/dist/types/geojson';
 import {transform, WGS84, BD09} from 'gcoord';
 
-import {getWithByScreen, mathRound} from '@/utils';
+import {getWithByScreen} from '@/utils';
 import {loadingCounter} from '@/utils/network-helper/loading-counter';
 
-import {CURRENT_PROJECT_INFO, MapApi} from '@/config';
+import {MapApi} from '@/config';
 import {styleJson} from '@/utils/map-helper/custorm-style';
 
 export const RMap = MapApi;
 export const isMapGl = !(window as any).BMap;
+export const NEED_SCALED = false;
+
+import store from '@/store';
 
 // 判断是不是一个 bd09 的百度地图坐标点
 const _isBMapPoint = (point: any): boolean => !!point && point.lat && point.lng;
+
+// TODO: needScaled 是一个不太好的特性，目前默认关闭了
+// 原因是CSS中的 vw 是对应的宽度是即时改变的，但是地图中的手动缩放需要刷新页面重新生成实例后才能生效，刷新之前就会产生显示错位
+// 如果仍采用缩放，那么就需要监听地图的resize事件，改变所有图标的尺寸
+
+// 判断某个函数是否需要缩放（只有全局开关打开、并且组件中显式的在地图辅助方法的 option 中传入 needScaled 为 true 时，才会缩放）
+const _needScaled = (options: any) => NEED_SCALED && options && options.needScaled;
 
 // 地址查询：http://lbsyun.baidu.com/jsdemo.htm#i7_2
 export const geoCoder = new RMap.Geocoder();
@@ -50,7 +55,7 @@ export const geoCoder = new RMap.Geocoder();
 // 转换坐标点
 // 约定：传入的是数组格式，那么认为传入的是 WGS84 坐标，会转换为 bd09 的坐标点
 // 如果传入的 bd09 坐标点，那么会原样返回
-export const convertPoint: ConvertPoint = (point, from = 1, to = 5) => {
+export const convertPoint: TypeConvertPoint = (point, from = 1, to = 5) => {
     if (Array.isArray(point)) {
         const HASH = {
             1: WGS84,
@@ -67,7 +72,7 @@ export const convertPoint: ConvertPoint = (point, from = 1, to = 5) => {
 };
 
 // 生成地图
-export const initMap: InitMap = async (id, options) => {
+export const initMap: TypeInitMap = async (id, options) => {
     const container = document.querySelector(`#${id}`);
     if (!container) {
         throw new Error(`地图容器节点不存在！(id: ${id})`);
@@ -78,9 +83,9 @@ export const initMap: InitMap = async (id, options) => {
     const _options = options ? options : {};
 
     // 转换中心坐标
-    const bdCenterPoint = convertPoint(_options.centerPoint || CURRENT_PROJECT_INFO.mapCenter);
+    const bdCenterPoint = convertPoint(_options.centerPoint || store.getters.currentProjectInfo.mapCenter);
 
-    const zoom = _options.zoom ? _options.zoom : CURRENT_PROJECT_INFO.mapZoom;
+    const zoom = _options.zoom ? _options.zoom : store.getters.currentProjectInfo.mapZoom;
     const minZoom = _options.minZoom ? _options.minZoom : 5;
     const maxZoom = _options.maxZoom ? _options.maxZoom : 21;
 
@@ -152,14 +157,12 @@ export const initMap: InitMap = async (id, options) => {
 };
 
 // 设定中心
-export const setMapCenter: SetMapCenter = (map, point) => {
+export const setMapCenter: TypeSetMapCenter = (map, point) => {
     map.setCenter(convertPoint(point));
 };
 
 // 根据传入的点设置地图视野
-export const setMapViewport: SetMapViewport = (map, points, options) => {
-    const needScaled = !(options && options.needScaled === false);
-
+export const setMapViewport: TypeSetMapViewport = (map, points, options) => {
     // 处理坐标点
     let convertPoints: TypeRPoint[] = [];
     for (const point of points) {
@@ -171,7 +174,9 @@ export const setMapViewport: SetMapViewport = (map, points, options) => {
     }
 
     const margins =
-        options && options.margins ? options.margins.map((v) => (needScaled ? getWithByScreen(v) : v)) : [0, 0, 0, 0];
+        options && options.margins
+            ? options.margins.map((v) => (_needScaled(options) ? getWithByScreen(v) : v))
+            : [0, 0, 0, 0];
 
     const opt = {
         zoomFactor: options && options.zoomFactor ? options.zoomFactor : 0,
@@ -184,25 +189,22 @@ export const setMapViewport: SetMapViewport = (map, points, options) => {
 };
 
 // 重新设定地图中心（默认禁止动画，防止地图显示/隐藏切换时因为动画导致重置无法生效）
-export const resetMap: ResetMap = (map, centerPoint, zoom, noAnimation = true) => {
-    const pt = centerPoint ? centerPoint : CURRENT_PROJECT_INFO.mapCenter;
-    const zoomLevel = zoom || CURRENT_PROJECT_INFO.mapZoom;
+export const resetMap: TypeResetMap = (map, centerPoint, zoom, noAnimation = true) => {
+    const pt = centerPoint ? centerPoint : store.getters.currentProjectInfo.mapCenter;
+    const zoomLevel = zoom || store.getters.currentProjectInfo.mapZoom;
 
     map.setCenter(pt, {noAnimation});
     map.setZoom(zoomLevel, {noAnimation});
 };
 
 // 绘制单条线路
-export const addMapLine: AddMapLine = (map, line, options) => {
-    // 默认缩放
-    const needScaled = !(options && options.needScaled === false);
-
+export const addMapLine: TypeAddMapLine = (map, line, options) => {
     // 线宽
     const strokeWeight = options && options.strokeWeight ? options.strokeWeight : 4;
 
     const DEFAULT_OPTIONS = {
         strokeColor: '#47dcf3',
-        strokeWeight: needScaled ? getWithByScreen(strokeWeight) : strokeWeight,
+        strokeWeight: _needScaled(options) ? getWithByScreen(strokeWeight) : strokeWeight,
         strokeOpacity: 1
     };
 
@@ -224,14 +226,14 @@ export const addMapLine: AddMapLine = (map, line, options) => {
 };
 
 // 绘制多条线路
-export const addMapLines: AddMapLines = (map, lines, options) => {
+export const addMapLines: TypeAddMapLines = (map, lines, options) => {
     return (lines as any[][]).map((line) => addMapLine(map, line, options));
 };
 
 // 添加图标 marker
-export const addMapMarker: AddMapMarker = (point, icon, options) => {
+export const addMapMarker: TypeAddMapMarker = (point, icon, options) => {
     // Icon 尺寸
-    const needScaled = !(options && options.needScaled === false);
+    const needScaled = _needScaled(options);
     const scaledSize = icon.size.map((v) => (needScaled ? getWithByScreen(v) : v));
     const sizeInMap = new RMap.Size(scaledSize[0], scaledSize[1]);
 
@@ -276,7 +278,7 @@ export const addMapMarker: AddMapMarker = (point, icon, options) => {
 };
 
 // 为 marker 添加水波纹动画
-export const addMarkerAnimation: AddMarkerAnimation = (marker, options) => {
+export const addMarkerAnimation: TypeAddMarkerAnimation = (marker, options) => {
     const infinite = !!(options && options.infinite === true);
 
     const content =
@@ -298,7 +300,7 @@ export const addMarkerAnimation: AddMarkerAnimation = (marker, options) => {
 };
 
 // 更换 marker 的 icon
-export const changeMarkerIcon: ChangeMarkerIcon = (marker, options) => {
+export const changeMarkerIcon: TypeChangeMarkerIcon = (marker, options) => {
     const withAnimation = !!options.withAnimation;
     const {icon, iconSize} = options;
 
@@ -306,7 +308,7 @@ export const changeMarkerIcon: ChangeMarkerIcon = (marker, options) => {
     const targetIcon = marker.getIcon();
 
     // Icon 尺寸
-    const needScaled = !(options && options.needScaled === false);
+    const needScaled = _needScaled(options);
     const scaledSize = iconSize.map((v) => (needScaled ? getWithByScreen(v) : v));
     const sizeInMap = new RMap.Size(scaledSize[0], scaledSize[1]);
 
@@ -349,8 +351,7 @@ export const changeMarkerIcon: ChangeMarkerIcon = (marker, options) => {
     return marker;
 };
 
-export const addCommonLabel: AddCommonLabel = (target, content, point, options) => {
-    const needScaled = !(options && options.needScaled === false);
+export const addCommonLabel: TypeAddCommonLabel = (target, content, point, options) => {
     const label = new RMap.Label(content);
 
     // label 的参数
@@ -378,10 +379,9 @@ export const addCommonLabel: AddCommonLabel = (target, content, point, options) 
 };
 
 // 添加文本框
-export const addMapLabel: AddMapLabel = (target, text, point, offset, className, options) => {
+export const addMapLabel: TypeAddMapLabel = (target, text, point, offset, className, options) => {
     const needTriangle = options && options.needTriangle === true;
-    const needScaled = !(options && options.needScaled === false);
-    const scaledOffsetY = needScaled ? getWithByScreen(offset[1]) : offset[1];
+    const scaledOffsetY = _needScaled(options) ? getWithByScreen(offset[1]) : offset[1];
 
     // label 的参数
     let opts: any = {
@@ -425,10 +425,11 @@ export const addMapLabel: AddMapLabel = (target, text, point, offset, className,
 };
 
 // 更改 label 样式
-export const changeLabelContent: ChangeLabelContent = (label, content, offset, options) => {
+export const changeLabelContent: TypeChangeLabelContent = (label, content, offset, options) => {
     const [offsetX, offsetY] = offset;
-    const scaledOffsetX = options && options.needScaled ? getWithByScreen(offsetX) : offsetX;
-    const scaledOffsetY = options && options.needScaled ? getWithByScreen(offsetY) : offsetY;
+    const needScaled = _needScaled(options);
+    const scaledOffsetX = needScaled ? getWithByScreen(offsetX) : offsetX;
+    const scaledOffsetY = needScaled ? getWithByScreen(offsetY) : offsetY;
 
     //替换Label显示内容
     if (content) {
@@ -445,21 +446,8 @@ export const changeLabelContent: ChangeLabelContent = (label, content, offset, o
     return label;
 };
 
-// 根据朝向角获取 Label 的 Y 轴偏移量，0°/180° = -labelHeight - baseGap ，90°/2170° = -labelHeight
-// 注意，使用此方法是，Label 的 Y 轴不要有定位偏移或者 translateY
-export const getOffsetYByHeadingAngle: GetLabelOffsetYByHeadingAngle = (
-    labelHeight,
-    baseGap,
-    headingAngle,
-    options
-) => {
-    const needScaled = !(options && options.needScaled === false);
-    const result = -labelHeight - baseGap * mathRound(Math.abs(Math.cos(Math.PI * (headingAngle / 180))), 2);
-    return needScaled ? getWithByScreen(result) : result;
-};
-
 // 获取地图的边界定点组成的数组，顺序为[西北角、东北角、东南角、西南角]
-export const getMapBoundsPoint: GetMapBoundsPoint = (map) => {
+export const getMapBoundsPoint: TypeGetMapBoundsPoint = (map) => {
     const bounds = map.getBounds();
     const SW = bounds.getSouthWest();
     const NE = bounds.getNorthEast();
@@ -469,7 +457,7 @@ export const getMapBoundsPoint: GetMapBoundsPoint = (map) => {
 };
 
 // 添加蒙层
-export const addMapMask: AddMapMask = (map, options) => {
+export const addMapMask: TypeAddMapMask = (map, options) => {
     const polyOptions = {
         strokeColor: 'none',
         fillColor: options.fillColor,
@@ -483,7 +471,7 @@ export const addMapMask: AddMapMask = (map, options) => {
 };
 
 // 根据 IP 地址获取文字描述
-export const getMapLocation: GetMapLocation = async (point) => {
+export const getMapLocation: TypeGetMapLocation = async (point) => {
     const pt = await convertPoint(point);
 
     return new Promise((resolve) => {
