@@ -1,8 +1,17 @@
 /**
  * 全局样式变量，无须手动导入，在 SCSS 样式中直接使用
  */
-$mainTextColor: #999;
-$mainBackgroundColor: #fff;
-$mapBackgroundColor: #1d2127;
+// 品牌色
+$brand-color: #005ce6; // 品牌色
 
-$hoverColor: #ff9421;
+// 主题色
+$theme-color-inspection: #6ab4f4; // 智能巡检平台主题色
+$theme-color-fleet: #175cf2; // Fleet 平台主题色
+$theme-color-permission: #1780f2; // 权限管理中心主题色
+
+// 背景色
+$bg-color-fleet: #2e5dc2; // Fleet 平台背景色
+
+// 常用色
+$approval-color: #53a9ff; // 审批
+$disabled-color: #c2c6cc; // 不可点击

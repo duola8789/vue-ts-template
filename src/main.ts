@@ -9,6 +9,7 @@ import store from './store';
 
 import '@/styles/reset.css';
 import '@/styles/baidu-map.scss';
+import '@/styles/element/index.scss';
 
 Vue.config.productionTip = false;
 
