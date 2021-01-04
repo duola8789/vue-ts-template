@@ -26,15 +26,28 @@ yarn install
 
 # 区分环境进行构建
 build_command="build"
+
+# 是否打包 Nginx 相关配置
+package_nginx_conf=false
+
 case "$1" in
-    'dev') build_command="build-dev"
-    ;;
-    'staging') build_command="build-staging"
-    ;;
-    'testing') build_command="build-testing"
-    ;;
-    *) build_command="build"
-    ;;
+    'dev')
+        build_command="build-dev"
+        ;;
+    'staging')
+        build_command="build-staging"
+        ;;
+    'testing')
+        build_command="build-testing"
+        ;;
+    'pre')
+        build_command="build-pre"
+        package_nginx_conf=true
+        ;;
+    *)
+        build_command="build"
+        package_nginx_conf=true
+        ;;
 esac
 
 # 编译日志中打印执行的编译命令
@@ -48,5 +61,25 @@ mkdir output
 
 # 复制 dist 目录下的产出到 output 目录下
 cp -rf dist/* output/
+
+# 线上环境，复制前端对应的 nginx 配置文件和部署脚本到 output/conf 目录下
+if [ "$package_nginx_conf" = true ]
+then
+    # 复制前端部署脚本到 output/bin 目录下
+    mkdir -p output/bin
+    cp -rf bin/* output/bin/
+
+    mkdir -p output/conf
+    cp -rf conf/* output/conf/
+
+    mkdir -p output/spec
+    cp -rf spec/* output/spec/
+
+    mkdir -p output/noahdes
+    cp -rf noahdes/* output/noahdes/
+
+    mkdir -p output/log
+    cp -rf log/* output/log
+fi
 
 echo "----- build end------"

@@ -22,3 +22,9 @@ Profiles:
       env: DECK_CENTOS6U3_K3
       command: sh ./scripts/build.sh testing
       release: true
+
+    - profile:
+      name: pre
+      env: DECK_CENTOS6U3_K3
+      command: sh ./scripts/build.sh pre
+      release: true
